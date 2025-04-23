@@ -1,8 +1,8 @@
-
 import { useState, useEffect } from 'react';
 import { useAudio } from '../hooks/useAudio';
 import GlitchText from './GlitchText';
 import ChoiceButton from './ChoiceButton';
+import GameMenu from './GameMenu';
 import storyData from '../data/storyData';
 
 interface Choice {
@@ -17,8 +17,9 @@ const GameScreen: React.FC = () => {
   const [locationText, setLocationText] = useState('');
   const [gameStarted, setGameStarted] = useState(false);
   
-  // Audio effects
-  const transitionSound = useAudio('/sounds/glitch-transition.mp3');
+  // Audio effects with proper options
+  const transitionSound = useAudio('/sounds/glitch-transition.mp3', { volume: 0.5 });
+  const buttonClickSound = useAudio('/sounds/button-click.mp3', { volume: 0.3 });
   
   // Initialize the game state from the story data
   useEffect(() => {
@@ -28,15 +29,21 @@ const GameScreen: React.FC = () => {
     }
   }, [currentLocation]);
   
-  const handleChoice = (target: string) => {
+  const handleChoice = async (target: string) => {
+    buttonClickSound.play();
     setIsTransitioning(true);
-    transitionSound.play();
+    await transitionSound.play();
     
     // Short delay to allow transition animation
     setTimeout(() => {
       setCurrentLocation(target);
       setIsTransitioning(false);
     }, 1000);
+  };
+
+  const handleStartGame = () => {
+    setGameStarted(true);
+    buttonClickSound.play();
   };
   
   // Start screen UI
@@ -49,16 +56,7 @@ const GameScreen: React.FC = () => {
           GLITCH CITY
         </h1>
         
-        <p className="text-xl md:text-2xl text-white/80 max-w-xl text-center mb-12">
-          A digital realm where reality fragments and choices reshape your destiny
-        </p>
-        
-        <ChoiceButton 
-          text="BEGIN SIMULATION" 
-          onClick={() => setGameStarted(true)} 
-        />
-        
-        <p className="mt-8 text-sm text-white/60">Created with React & TailwindCSS</p>
+        <GameMenu onStartGame={handleStartGame} />
       </div>
     );
   }

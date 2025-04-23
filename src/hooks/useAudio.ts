@@ -28,26 +28,22 @@ export function useAudio(src: string, options: UseAudioOptions = {}) {
     
     return () => {
       audio.pause();
+      audio.currentTime = 0;
       audio.removeEventListener('canplaythrough', () => {
         setIsLoaded(true);
       });
     };
   }, [src, loop, volume, autoplay]);
 
-  const play = () => {
+  const play = async () => {
     const audio = audioRef.current;
     if (audio) {
-      // Using the promise returned by play() to handle autoplay restrictions
-      const playPromise = audio.play();
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => {
-            setIsPlaying(true);
-          })
-          .catch((error) => {
-            console.error('Error playing audio:', error);
-            setIsPlaying(false);
-          });
+      try {
+        await audio.play();
+        setIsPlaying(true);
+      } catch (error) {
+        console.error('Error playing audio:', error);
+        setIsPlaying(false);
       }
     }
   };
