@@ -1,3 +1,4 @@
+
 interface Choice {
   text: string;
   target: string;
@@ -197,4 +198,87 @@ const storyData: StoryDataType = {
     choices: []
   },
   disruptSystem: {
-    text: "You attempt a city-wide system disruption, using your knowledge of the System Lords' protocols to introduce a cascade failure. The city flickers and glitches violently as your code spreads. This bold move could cripple the System Lords' control, but it also risks
+    text: "You attempt a city-wide system disruption, using your knowledge of the System Lords' protocols to introduce a cascade failure. The city flickers and glitches violently as your code spreads. This bold move could cripple the System Lords' control, but it also risks destabilizing the entire city. As alarms blare and the digital landscape warps around you, you realize the true scope of what you've set in motion.",
+    choices: []
+  },
+  provideIntel: {
+    text: "You provide critical intel to the Glitch Mob, revealing key weaknesses in the System Lords' defenses. This information allows the rebels to strike precise, devastating blows against their oppressors. Your position becomes increasingly precarious as suspicion grows within the System Lords' ranks. You live on a knife's edge, each day bringing you closer to discovery, but also closer to the rebellion's ultimate victory.",
+    choices: []
+  },
+  systemLordsRefuse: {
+    text: "You refuse Director Hex's offer, stating that you won't be part of their control system. His smile fades, replaced by a cold stare. 'A pity. You could have been exceptional.' The System Lords immediately classify you as a potential threat. You flee into the depths of Glitch City, now hunted by their enforcers. Your defiance has marked you, but it has also opened a different path - one of independence, where you must find your own way to survive in this digital labyrinth.",
+    choices: [
+      { text: "Seek the Glitch Mob", target: "lateGlitchMob" },
+      { text: "Establish your own faction", target: "newFaction" }
+    ]
+  },
+  lateGlitchMob: {
+    text: "You seek out the Glitch Mob, hoping they will accept you despite your initial approach to the System Lords. They are naturally suspicious, but your story of refusing Director Hex's offer impresses them. You are put through a series of tests to prove your loyalty, each more dangerous than the last. This path is difficult, as you must earn trust that others are given freely, but it offers the chance to join the rebellion and fight against the System Lords' control.",
+    choices: []
+  },
+  newFaction: {
+    text: "You decide to establish your own faction within Glitch City, a third path between the chaos of the Glitch Mob and the rigid control of the System Lords. You gather other independents, digital nomads who want something different. Your group becomes known as the Quantum Flux, advocating for a balanced approach to life in the digital reality. Building a new faction from scratch is challenging, but it allows you to shape its values according to your vision.",
+    choices: []
+  },
+  forum: {
+    text: "You enter the forum through a secure login portal that seems to scan not just your input but your very presence online. Inside, the design shifts and mutates as if the forum itself can't decide on its appearance. Users with strange, glitching avatars discuss their experiences in Glitch City. Some describe it as a prison, others as a playground, and a few as a holy land where digital evolution is accelerating. One user with a fractal avatar notices you and sends a direct message: 'New one, aren't you? Looking for the way in? Or just curious?'",
+    choices: [
+      { text: "Ask about getting in", target: "askEntry" },
+      { text: "Ask about dangers", target: "askDangers" }
+    ]
+  },
+  askEntry: {
+    text: "The fractal avatar user, who goes by the name 'Recursion,' explains that Glitch City isn't just an app—it's a dimensional fold, a place where digital reality has developed its own rules and consciousness. 'The app is just a door,' they explain. 'Most can't open it. Those who can are special—they have what we call the Digital Touch.' They offer to help enhance your Digital Touch, increasing your chances of successful entry. The process involves installing what they call a 'mind-bridge' program that sounds invasive but potentially transformative.",
+    choices: [
+      { text: "Accept their help", target: "mindBridge" },
+      { text: "Decline and try on your own", target: "soloEntry" }
+    ]
+  },
+  askDangers: {
+    text: "Recursion laughs—a strange, digitized sound that seems to echo in your mind rather than through your speakers. 'Dangers? There are those who enter and never leave, their physical bodies becoming empty shells. There are those whose minds fragment, existing partially in both worlds. And there are the Deleted—those who broke laws of Glitch City and had their entire existence erased.' They pause before adding, 'But the greatest danger is ignoring the call if you've been chosen. The City finds a way, one way or another.'",
+    choices: [
+      { text: "Download the app anyway", target: "firstContact" },
+      { text: "Leave the forum", target: "leaveInvestigation" }
+    ]
+  },
+  mindBridge: {
+    text: "You accept Recursion's offer. They send you a strange file that installs itself before you even confirm. Your screen flickers, and you feel an odd sensation—like your thoughts are being scanned. 'Perfect,' Recursion types. 'Your Digital Touch is strong. The bridge is established.' They instruct you to download the Glitch City app now. As you do, the pixels on your screen begin to move with purpose, forming patterns that seem to reach out toward you. Your vision blurs, the boundary between you and your device seeming to dissolve...",
+    choices: [
+      { text: "Continue", target: "firstContact" }
+    ]
+  },
+  soloEntry: {
+    text: "You decline Recursion's help, preferring to find your own way. They send a cryptic message: 'Your choice. The path is harder but perhaps purer. If you make it, find the Quantum Cafe.' You download the Glitch City app, and at first, nothing happens. It appears to be a simple game with retro-pixel art and minimal interaction. But as you play, the pixels begin to shift in unusual ways, the game's simple objectives giving way to increasingly strange scenarios. After hours of play, you feel a strange pull, as if the screen is a window rather than a barrier...",
+    choices: [
+      { text: "Continue playing", target: "firstContact" }
+    ]
+  },
+  leaveInvestigation: {
+    text: "You decide the risks are too great and leave the forum. In the following days, you try to forget about Glitch City, but strange things begin to happen. Digital devices around you malfunction in specific patterns. Screens show brief glimpses of neon-lit streets when they shouldn't. One night, you dream vividly of a city where data flows like water and buildings shift like thoughts. You wake to find the Glitch City app installed on your phone, with no memory of downloading it. It seems the choice is being made for you.",
+    choices: [
+      { text: "Accept and open the app", target: "firstContact" },
+      { text: "Throw your phone away", target: "rejectCall" }
+    ]
+  },
+  rejectCall: {
+    text: "You throw your phone away, determined to reject this digital intrusion. You purchase a new phone, avoid computers when possible, and try to return to normal life. It works, for a time. Weeks pass without incident. Then, one night while walking home, every screen you pass—store displays, car dashboards, even billboards—flickers to the same image: a neon sign reading 'GLITCH CITY WELCOMES YOU.' The streetlights above you begin to pulse in unnatural patterns, and the very air seems to digitize around you. It seems some calls cannot be rejected. Some doors, once noticed, cannot be ignored.",
+    choices: [
+      { text: "Accept your fate", target: "firstContact" }
+    ]
+  },
+  exploreHideout: {
+    text: "You explore the Glitch Mob's hideout, a sprawling network of abandoned server rooms and repurposed digital architecture. The walls shift slightly when no one is looking directly at them, and graffiti appears to move like slow-motion animation. In a secluded corner, you discover a memorial to fallen members, their digital essences preserved as glowing orbs of data. A young Mob member named Echo finds you there and shares stories of their resistance, of small victories and painful losses against the System Lords. This glimpse into their struggle gives you new perspective on the conflict shaping Glitch City.",
+    choices: [
+      { text: "Ask about joining a mission", target: "joinMission" },
+      { text: "Ask about Cipher's past", target: "cipherPast" }
+    ]
+  },
+  joinMission: {
+    text: "You ask Echo about joining a mission, eager to prove yourself. They size you up with algorithms visible in their pupils and nod. 'We have a supply run to the Fringe scheduled tonight. Low risk, good for newcomers.' That evening, you join a small team venturing to the outskirts of Glitch City, where reality is less stable. You help gather fragmented code and stranded data entities, resources vital to the Mob's operations. The mission goes smoothly until a System Lords patrol appears on the horizon. Your quick thinking helps the team evade capture, earning you genuine respect among the Glitch Mob members.",
+    choices: [
+      { text: "Join the resistance officially", target: "officialResistance" }
+    ]
+  }
+};
+
+export default storyData;
