@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,6 +62,14 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				// Cyberpunk theme colors
+				neon: {
+					cyan: '#00FFFF',
+					magenta: '#FF00FF',
+					yellow: '#FFFF00',
+					purple: '#8B5CF6',
+					blue: '#1EAEDB',
 				}
 			},
 			borderRadius: {
@@ -84,11 +93,61 @@ export default {
 					to: {
 						height: '0'
 					}
-				}
+				},
+				'text-glow': {
+					'0%, 100%': {
+						textShadow: '0 0 8px rgba(0, 255, 255, 0.7), 0 0 12px rgba(0, 255, 255, 0.5)'
+					},
+					'50%': {
+						textShadow: '0 0 16px rgba(0, 255, 255, 0.9), 0 0 24px rgba(0, 255, 255, 0.7)'
+					}
+				},
+				'button-glow': {
+					'0%, 100%': {
+						boxShadow: '0 0 8px rgba(0, 255, 255, 0.7), 0 0 12px rgba(0, 255, 255, 0.5)'
+					},
+					'50%': {
+						boxShadow: '0 0 16px rgba(0, 255, 255, 0.9), 0 0 24px rgba(0, 255, 255, 0.7)'
+					}
+				},
+				'glitch': {
+					'0%': { transform: 'translate(0)' },
+					'20%': { transform: 'translate(-2px, 2px)' },
+					'40%': { transform: 'translate(-2px, -2px)' },
+					'60%': { transform: 'translate(2px, 2px)' },
+					'80%': { transform: 'translate(2px, -2px)' },
+					'100%': { transform: 'translate(0)' }
+				},
+				'fade-in': {
+					'0%': { opacity: '0' },
+					'100%': { opacity: '1' }
+				},
+				'fade-out': {
+					'0%': { opacity: '1' },
+					'100%': { opacity: '0' }
+				},
+				'scale-in': {
+					'0%': { transform: 'scale(0.95)', opacity: '0' },
+					'100%': { transform: 'scale(1)', opacity: '1' }
+				},
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'text-glow': 'text-glow 2s ease-in-out infinite',
+				'button-glow': 'button-glow 2s ease-in-out infinite',
+				'glitch': 'glitch 0.5s ease-in-out infinite',
+				'fade-in': 'fade-in 0.5s ease-out',
+				'fade-out': 'fade-out 0.5s ease-out',
+				'scale-in': 'scale-in 0.5s ease-out',
+			},
+			backgroundImage: {
+				'glitch-pattern': "url('/glitch-background.png')",
+				'cyberpunk-grid': "linear-gradient(rgba(0, 255, 255, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 255, 255, 0.1) 1px, transparent 1px)",
+			},
+			fontFamily: {
+				'glitch': ['Orbitron', 'sans-serif'],
+				'cyber': ['Share Tech Mono', 'monospace'],
 			}
 		}
 	},
