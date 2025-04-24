@@ -116,8 +116,8 @@ const RoadTripBackground: React.FC<RoadTripBackgroundProps> = ({
         <div className="relative">
           <div className="w-80 h-40 bg-transparent rounded-lg shadow-lg">
             {/* SUV body */}
-            <div className="absolute top-0 left-10 w-60 h-24 bg-white rounded-t-lg"></div>
-            <div className="absolute bottom-0 left-0 w-full h-16 bg-white rounded-b-lg"></div>
+            <div className="absolute top-0 right-0 w-50 h-18 bg-white rounded-t-lg"></div>
+            <div className="absolute bottom-0 left-0 w-full h-20 bg-white rounded-b-lg"></div>
             
             {/* Windows */}
             <div className="absolute top-4 left-20 w-40 h-12 bg-blue-200 border border-gray-300"></div>
