@@ -7,12 +7,12 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { Button } from "./ui/button";
-import { Play, Rocket } from "lucide-react";
+import { Car, Play, Rocket } from "lucide-react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
 import GlitchText from "./GlitchText";
 
 interface GameMenuProps {
-  onStartGame: (storyType: 'glitchCity' | 'starship') => void;
+  onStartGame: (storyType: 'glitchCity' | 'starship' | 'roadTrip') => void;
 }
 
 const GameMenu: React.FC<GameMenuProps> = ({ onStartGame }) => {
@@ -72,6 +72,36 @@ const GameMenu: React.FC<GameMenuProps> = ({ onStartGame }) => {
                 >
                   <Rocket className="w-4 h-4 mr-2" />
                   Launch Mission
+                </Button>
+              </CardFooter>
+            </Card>
+          </CarouselItem>
+          
+          {/* Road Trip Story */}
+          <CarouselItem className="basis-full">
+            <Card className="bg-orange-900/40 backdrop-blur-sm border border-yellow-500/30 rounded-lg overflow-hidden h-full">
+              <div className="h-40 bg-gradient-to-b from-orange-300 to-yellow-500 bg-cover bg-center relative overflow-hidden">
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Car className="h-16 w-16 text-gray-800/70" />
+                </div>
+                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_30%,#000_100%)] opacity-50"></div>
+              </div>
+              <CardHeader>
+                <CardTitle className="text-2xl font-glitch text-yellow-500 text-center">Extremely Inconvenient Road Trip</CardTitle>
+                <CardDescription className="text-white/80 text-center">
+                  Embark on a chaotic journey across India in an old Tata Sumo.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="text-sm text-white/60">
+                <p>Navigate absurd obstacles, manage eccentric travel companions, and solve the most ridiculous problems imaginable.</p>
+              </CardContent>
+              <CardFooter className="flex justify-center">
+                <Button 
+                  onClick={() => onStartGame('roadTrip')}
+                  className="bg-yellow-500/20 border border-yellow-500 text-yellow-500 hover:bg-yellow-500/30"
+                >
+                  <Car className="w-4 h-4 mr-2" />
+                  Start Trip
                 </Button>
               </CardFooter>
             </Card>

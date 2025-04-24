@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useAudio } from '../hooks/useAudio';
 import GlitchText from './GlitchText';
@@ -5,12 +6,14 @@ import ChoiceButton from './ChoiceButton';
 import GameMenu from './GameMenu';
 import CityBackground from './CityBackground';
 import StarshipBackground from './StarshipBackground';
+import RoadTripBackground from './RoadTripBackground';
 import DecisionAnalysis from './DecisionAnalysis';
 import GameTimer from './GameTimer';
 import { Moon, Sun } from 'lucide-react';
 import { Switch } from './ui/switch';
 import glitchCityData from '../data/storyData';
 import starshipData from '../data/starshipData';
+import roadTripData from '../data/roadTripData';
 
 interface Choice {
   text: string;
@@ -21,7 +24,7 @@ interface Choice {
 }
 
 const GameScreen: React.FC = () => {
-  const [storyType, setStoryType] = useState<'glitchCity' | 'starship' | null>(null);
+  const [storyType, setStoryType] = useState<'glitchCity' | 'starship' | 'roadTrip' | null>(null);
   const [currentLocation, setCurrentLocation] = useState('');
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [choices, setChoices] = useState<Choice[]>([]);
@@ -54,7 +57,8 @@ const GameScreen: React.FC = () => {
 
   const riskyLocations = {
     glitchCity: ['missionAccept', 'infiltrateHub', 'carryOutTask', 'sabotageTask'],
-    starship: ['anomaly', 'anomalyPower', 'xylosChallenge', 'anomalyCaution']
+    starship: ['anomaly', 'anomalyPower', 'xylosChallenge', 'anomalyCaution'],
+    roadTrip: ['mechanicStop', 'bollywoodGPS', 'hagglePayment', 'findAround']
   };
 
   const transitionSound = useAudio('/sounds/glitch-transition.mp3', { volume: 0.5 });
@@ -73,7 +77,14 @@ const GameScreen: React.FC = () => {
   useEffect(() => {
     if (!gameStarted || !storyType) return;
     
-    const storyData = storyType === 'glitchCity' ? glitchCityData : starshipData;
+    const getStoryData = () => {
+      if (storyType === 'glitchCity') return glitchCityData;
+      if (storyType === 'starship') return starshipData;
+      if (storyType === 'roadTrip') return roadTripData;
+      return {};
+    };
+    
+    const storyData = getStoryData();
     
     if (storyData[currentLocation]) {
       setLocationText(storyData[currentLocation].text);
@@ -123,10 +134,15 @@ const GameScreen: React.FC = () => {
     }, 1000);
   };
 
-  const handleStartGame = (type: 'glitchCity' | 'starship') => {
+  const handleStartGame = (type: 'glitchCity' | 'starship' | 'roadTrip') => {
     setStoryType(type);
     setGameStarted(true);
-    setCurrentLocation(type === 'glitchCity' ? 'download' : 'start');
+    
+    let startLocation = 'download';
+    if (type === 'starship') startLocation = 'start';
+    if (type === 'roadTrip') startLocation = 'start';
+    
+    setCurrentLocation(startLocation);
     setStartTime(Date.now());
     buttonClickSound.play();
     
@@ -158,7 +174,11 @@ const GameScreen: React.FC = () => {
   };
 
   const handleRestart = () => {
-    setCurrentLocation(storyType === 'glitchCity' ? 'download' : 'start');
+    let startLocation = 'download';
+    if (storyType === 'starship') startLocation = 'start';
+    if (storyType === 'roadTrip') startLocation = 'start';
+    
+    setCurrentLocation(startLocation);
     setGameEnded(false);
     setDecisionHistory([]);
     setStartTime(Date.now());
@@ -203,6 +223,11 @@ const GameScreen: React.FC = () => {
             darkMode={darkMode} 
             mousePosition={mousePosition} 
           />
+        ) : storyType === 'roadTrip' ? (
+          <RoadTripBackground 
+            darkMode={darkMode}
+            mousePosition={mousePosition}
+          />
         ) : (
           <CityBackground darkMode={darkMode} />
         )}
@@ -239,6 +264,14 @@ const GameScreen: React.FC = () => {
           currentLocation={currentLocation}
           mousePosition={mousePosition}
         />
+      ) : storyType === 'roadTrip' ? (
+        <RoadTripBackground 
+          darkMode={darkMode}
+          triggerAnimation={isTransitioning}
+          shake={screenShake}
+          currentLocation={currentLocation}
+          mousePosition={mousePosition}
+        />
       ) : (
         <CityBackground 
           darkMode={darkMode} 
@@ -264,13 +297,13 @@ const GameScreen: React.FC = () => {
       )}
       
       <div className={`w-full max-w-3xl mx-auto z-10 ${screenShake ? 'animate-shake' : ''}`}>
-        <div className={`${darkMode ? 'bg-black/50' : 'bg-white/70'} backdrop-blur-sm border ${darkMode ? 'border-primary/30' : 'border-gray-300'} rounded-lg p-6 md:p-8 mb-8`}>
+        <div className={`bg-black/50 backdrop-blur-sm border border-primary/30 rounded-lg p-6 md:p-8 mb-8`}>
           <div className="mb-2 flex items-center">
             <div className="h-3 w-3 rounded-full bg-neon-yellow mr-2"></div>
             <div className="h-3 w-3 rounded-full bg-neon-magenta mr-2"></div>
             <div className="h-3 w-3 rounded-full bg-neon-cyan"></div>
             <div className="flex-1 text-right">
-              <span className={`text-xs font-cyber ${darkMode ? 'text-white/60' : 'text-black/60'}`}>
+              <span className="text-xs font-cyber text-white/60">
                 LOCATION:/{currentLocation}/
               </span>
             </div>
@@ -281,7 +314,7 @@ const GameScreen: React.FC = () => {
           <div className="prose prose-invert max-w-none">
             <GlitchText 
               text={locationText} 
-              className={`text-lg md:text-xl leading-relaxed ${darkMode ? 'text-white' : 'text-black'}`}
+              className="text-lg md:text-xl leading-relaxed text-white"
               glitchIntensity="low"
             />
           </div>
@@ -311,7 +344,7 @@ const GameScreen: React.FC = () => {
           </div>
         ) : (
           <div className="text-center mt-8">
-            <p className={`${darkMode ? 'text-white/70' : 'text-black/70'} mb-4`}>THE END</p>
+            <p className="text-white/70 mb-4">THE END</p>
             <div className="space-x-4">
               <ChoiceButton 
                 text="START OVER" 
