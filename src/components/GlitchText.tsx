@@ -22,6 +22,7 @@ const GlitchText: React.FC<GlitchTextProps> = ({
     
     const typeInterval = setInterval(() => {
       if (index < text.length) {
+        // Fix: Make sure to add the character, not replace the entire string each time
         setDisplayText((prev) => prev + text.charAt(index));
         index++;
       } else {
@@ -34,7 +35,7 @@ const GlitchText: React.FC<GlitchTextProps> = ({
 
   // Set up random glitching
   useEffect(() => {
-    if (displayText === text) {
+    if (displayText === text && displayText.length > 0) {
       const glitchFrequency = 
         glitchIntensity === 'low' ? 3000 :
         glitchIntensity === 'high' ? 1000 : 2000;
