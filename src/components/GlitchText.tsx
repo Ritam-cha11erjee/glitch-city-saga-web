@@ -14,19 +14,24 @@ const GlitchText: React.FC<GlitchTextProps> = ({
 }) => {
   const [displayText, setDisplayText] = useState('');
   const [isGlitching, setIsGlitching] = useState(false);
+  const [typingComplete, setTypingComplete] = useState(false);
 
   // Set up typewriter effect
   useEffect(() => {
     let index = 0;
     setDisplayText('');
+    setTypingComplete(false);
+    
+    // Reset when text changes
+    if (!text) return;
     
     const typeInterval = setInterval(() => {
       if (index < text.length) {
-        // Fix: Make sure to add the character, not replace the entire string each time
         setDisplayText((prev) => prev + text.charAt(index));
         index++;
       } else {
         clearInterval(typeInterval);
+        setTypingComplete(true);
       }
     }, 30); // typing speed
 
@@ -35,7 +40,7 @@ const GlitchText: React.FC<GlitchTextProps> = ({
 
   // Set up random glitching
   useEffect(() => {
-    if (displayText === text && displayText.length > 0) {
+    if (typingComplete && displayText.length > 0) {
       const glitchFrequency = 
         glitchIntensity === 'low' ? 3000 :
         glitchIntensity === 'high' ? 1000 : 2000;
@@ -47,7 +52,7 @@ const GlitchText: React.FC<GlitchTextProps> = ({
 
       return () => clearInterval(glitchInterval);
     }
-  }, [displayText, text, glitchIntensity]);
+  }, [typingComplete, displayText, glitchIntensity]);
 
   return (
     <span 

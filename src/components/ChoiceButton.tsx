@@ -1,78 +1,54 @@
 
-import { useEffect, useState } from 'react';
-import { useAudio } from '../hooks/useAudio';
-import { cn } from '@/lib/utils';
+import { Button } from "@/components/ui/button";
+import { useState } from "react";
 
 interface ChoiceButtonProps {
   text: string;
   onClick: () => void;
   variant?: 'primary' | 'secondary' | 'accent';
-  disabled?: boolean;
+  description?: string;
 }
 
-const ChoiceButton: React.FC<ChoiceButtonProps> = ({ 
-  text, 
-  onClick, 
+const ChoiceButton: React.FC<ChoiceButtonProps> = ({
+  text,
+  onClick,
   variant = 'primary',
-  disabled = false
+  description
 }) => {
   const [isHovered, setIsHovered] = useState(false);
-  const clickSound = useAudio('/sounds/button-click.mp3');
-  const [isVisible, setIsVisible] = useState(false);
   
-  useEffect(() => {
-    // Add a slight delay before showing the button for staggered animation
-    const timer = setTimeout(() => setIsVisible(true), Math.random() * 300);
-    return () => clearTimeout(timer);
-  }, []);
-
-  const handleClick = () => {
-    clickSound.play();
-    onClick();
-  };
-  
-  const getButtonColorClasses = () => {
+  const getButtonClasses = () => {
+    const baseClasses = "relative w-full text-lg py-3 font-cyber transition-all duration-300 border";
+    
     switch (variant) {
+      case 'primary':
+        return `${baseClasses} bg-neon-cyan/20 border-neon-cyan text-neon-cyan hover:bg-neon-cyan/30 hover:animate-button-glow`;
       case 'secondary':
-        return {
-          base: 'text-neon-magenta border-neon-magenta',
-          hover: 'hover:bg-neon-magenta/10',
-          glow: 'shadow-[0_0_10px_rgba(255,0,255,0.7)]'
-        };
+        return `${baseClasses} bg-neon-magenta/20 border-neon-magenta text-neon-magenta hover:bg-neon-magenta/30 hover:animate-button-glow`;
       case 'accent':
-        return {
-          base: 'text-neon-yellow border-neon-yellow',
-          hover: 'hover:bg-neon-yellow/10',
-          glow: 'shadow-[0_0_10px_rgba(255,255,0,0.7)]'
-        };
+        return `${baseClasses} bg-neon-yellow/20 border-neon-yellow text-neon-yellow hover:bg-neon-yellow/30 hover:animate-button-glow`;
       default:
-        return {
-          base: 'text-neon-cyan border-neon-cyan',
-          hover: 'hover:bg-neon-cyan/10',
-          glow: 'shadow-[0_0_10px_rgba(0,255,255,0.7)]'
-        };
+        return baseClasses;
     }
   };
   
-  const colors = getButtonColorClasses();
-
   return (
-    <button
-      className={cn(
-        'relative px-6 py-3 mb-4 w-full max-w-lg transition-all duration-300 border-2 rounded-md backdrop-blur-sm bg-black/30',
-        colors.base,
-        colors.hover,
-        isHovered ? colors.glow : '',
-        isVisible ? 'animate-scale-in opacity-100' : 'opacity-0',
-        disabled && 'opacity-50 cursor-not-allowed'
+    <div className="w-full relative">
+      <Button 
+        onClick={onClick}
+        className={getButtonClasses()}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+        {text}
+      </Button>
+      
+      {description && isHovered && (
+        <div className="absolute left-0 right-0 -bottom-10 z-20 bg-black/80 backdrop-blur-sm border border-primary/20 rounded p-1 text-xs text-white/80 transition-all duration-200">
+          {description}
+        </div>
       )}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      onClick={handleClick}
-      disabled={disabled}
-    >
-      <span className="font-glitch tracking-wider">{text}</span>
-    </button>
+    </div>
   );
 };
 

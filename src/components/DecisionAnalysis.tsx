@@ -1,6 +1,33 @@
 
-import { useEffect, useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import ChoiceButton from './ChoiceButton';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+  RadialLinearScale,
+  PointElement,
+  LineElement,
+  Filler,
+} from 'chart.js';
+import { Bar, Radar } from 'react-chartjs-2';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  RadialLinearScale,
+  PointElement,
+  LineElement,
+  Filler,
+  Title,
+  Tooltip,
+  Legend
+);
 
 interface DecisionAnalysisProps {
   decisions: string[];
@@ -8,193 +35,363 @@ interface DecisionAnalysisProps {
   endTime: number;
   finalLocation: string;
   onRestart: () => void;
+  onReturnToMenu?: () => void;
   darkMode: boolean;
+  userEssence?: {[key: string]: number};
 }
 
-const DecisionAnalysis: React.FC<DecisionAnalysisProps> = ({ 
-  decisions, 
-  startTime, 
+const DecisionAnalysis: React.FC<DecisionAnalysisProps> = ({
+  decisions,
+  startTime,
   endTime,
   finalLocation,
   onRestart,
-  darkMode
+  onReturnToMenu,
+  darkMode,
+  userEssence
 }) => {
-  const [analysis, setAnalysis] = useState({
-    bravery: 0,
-    strategic: 0,
-    impulsive: 0,
-    chaotic: 0,
-    completion: 0
-  });
-  
-  useEffect(() => {
-    // Analyze decisions
-    let braveryScore = 50; // Base score
-    let strategicScore = 50;
-    let impulsiveScore = 50;
-    let chaoticScore = 50;
-    
-    // Decisions that increase bravery
-    const braveryDecisions = [
-      'missionAccept', 'infiltrateHub', 'leadRaid', 'rebellionEvent', 
-      'disruptSystem', 'destroyCity', 'succeedGlitchMob'
-    ];
-    
-    // Decisions that increase strategic thinking
-    const strategicDecisions = [
-      'investigate', 'systemLordsAccept', 'continueDeception', 
-      'secretResistanceSystem', 'provideIntel', 'keepKnowledge'
-    ];
-    
-    // Decisions that indicate impulsiveness
-    const impulsiveDecisions = [
-      'firstContact', 'failGlitchMob', 'exploreCityRefuse', 'carryOutTask'
-    ];
-    
-    // Decisions that indicate chaos/rebelliousness
-    const chaoticDecisions = [
-      'glitchMob', 'sabotageTask', 'contactGlitchMobSecretly', 
-      'rebellionEvent', 'shareKnowledge'
-    ];
-    
-    // Analyze each decision
-    decisions.forEach(decision => {
-      const parts = decision.split('→');
-      if (parts.length >= 2) {
-        const target = parts[1].split(':')[0].trim();
-        
-        if (braveryDecisions.includes(target)) braveryScore += 10;
-        if (strategicDecisions.includes(target)) strategicScore += 10;
-        if (impulsiveDecisions.includes(target)) impulsiveScore += 10;
-        if (chaoticDecisions.includes(target)) chaoticScore += 10;
-      }
-    });
-    
-    // Calculate completion percentage based on number of decisions
-    // Assuming maximum path length is about 8 decisions
-    const completionScore = Math.min(100, Math.round((decisions.length / 8) * 100));
-    
-    // Cap scores at 100
-    braveryScore = Math.min(100, braveryScore);
-    strategicScore = Math.min(100, strategicScore);
-    impulsiveScore = Math.min(100, impulsiveScore);
-    chaoticScore = Math.min(100, chaoticScore);
-    
-    setAnalysis({
-      bravery: braveryScore,
-      strategic: strategicScore,
-      impulsive: impulsiveScore,
-      chaotic: chaoticScore,
-      completion: completionScore
-    });
-  }, [decisions, finalLocation]);
-  
-  // Calculate time taken
+  // Calculate metrics
   const timeTaken = Math.floor((endTime - startTime) / 1000);
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins} minute${mins !== 1 ? 's' : ''} and ${secs} second${secs !== 1 ? 's' : ''}`;
+  const minutes = Math.floor(timeTaken / 60);
+  const seconds = timeTaken % 60;
+  
+  // Calculate personality traits based on decisions
+  const riskScore = calculateRiskScore(decisions, userEssence);
+  const diplomacyScore = calculateDiplomacyScore(decisions, userEssence);
+  const explorationScore = calculateExplorationScore(decisions, userEssence);
+  
+  // Create chart data
+  const chartData = {
+    labels: ['Risk Taking', 'Diplomacy', 'Exploration'],
+    datasets: [
+      {
+        label: 'Your Score',
+        data: [riskScore, diplomacyScore, explorationScore],
+        backgroundColor: darkMode 
+          ? ['rgba(255, 99, 132, 0.6)', 'rgba(54, 162, 235, 0.6)', 'rgba(255, 206, 86, 0.6)']
+          : ['rgba(255, 99, 132, 0.8)', 'rgba(54, 162, 235, 0.8)', 'rgba(255, 206, 86, 0.8)'],
+        borderColor: darkMode
+          ? ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 206, 86, 1)']
+          : ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 206, 86, 1)'],
+        borderWidth: 1,
+      },
+    ],
+  };
+  
+  const chartOptions = {
+    scales: {
+      y: {
+        beginAtZero: true,
+        max: 10,
+        ticks: {
+          color: darkMode ? '#aaa' : '#333',
+        },
+        grid: {
+          color: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+        },
+      },
+      x: {
+        ticks: {
+          color: darkMode ? '#aaa' : '#333',
+        },
+        grid: {
+          color: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+        },
+      },
+    },
+    plugins: {
+      legend: {
+        display: false,
+      },
+    },
+    responsive: true,
+    maintainAspectRatio: false,
+  };
+
+  // Create radar chart for essence attributes if present
+  let radarData = null;
+  if (userEssence) {
+    const essenceValues = Object.entries(userEssence)
+      .filter(([_, value]) => value !== 0)
+      .sort((a, b) => b[1] - a[1]);
+    
+    if (essenceValues.length > 0) {
+      radarData = {
+        labels: essenceValues.map(([key]) => key.charAt(0).toUpperCase() + key.slice(1)),
+        datasets: [
+          {
+            label: 'Essence Values',
+            data: essenceValues.map(([_, value]) => value),
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            borderColor: 'rgb(75, 192, 192)',
+            pointBackgroundColor: 'rgb(75, 192, 192)',
+            pointBorderColor: '#fff',
+            pointHoverBackgroundColor: '#fff',
+            pointHoverBorderColor: 'rgb(75, 192, 192)',
+            fill: true
+          }
+        ]
+      };
+    }
+  }
+
+  const radarOptions = {
+    scales: {
+      r: {
+        angleLines: {
+          color: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
+        },
+        grid: {
+          color: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
+        },
+        pointLabels: {
+          color: darkMode ? '#aaa' : '#333'
+        },
+        ticks: {
+          color: darkMode ? '#aaa' : '#333',
+          backdropColor: 'transparent'
+        }
+      }
+    },
+    plugins: {
+      legend: {
+        display: false
+      },
+    }
   };
   
   return (
-    <div className={`${darkMode ? 'bg-black/70' : 'bg-white/80'} backdrop-blur-md p-6 rounded-lg border ${darkMode ? 'border-neon-cyan/30' : 'border-gray-300'} w-full max-w-lg mx-auto`}>
-      <h2 className={`text-2xl font-glitch mb-4 text-center ${darkMode ? 'text-neon-cyan' : 'text-blue-600'}`}>
-        Decision Analysis
-      </h2>
-      
-      <div className="space-y-4 mb-6">
-        <div>
-          <h3 className={`text-lg font-cyber mb-1 ${darkMode ? 'text-white/80' : 'text-gray-700'}`}>Time Taken</h3>
-          <p className={darkMode ? 'text-white/70' : 'text-gray-600'}>{formatTime(timeTaken)}</p>
+    <Card className={`w-full ${darkMode ? 'bg-black/70 text-white' : 'bg-white/90 text-black'} backdrop-blur-md border-primary/30`}>
+      <CardHeader>
+        <CardTitle className="text-2xl text-center font-glitch">Decision Analysis</CardTitle>
+        <CardDescription className={darkMode ? "text-white/60" : "text-black/60"}>
+          Your journey ended at: {finalLocation}
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-primary/5 p-4 rounded-lg">
+            <h3 className="text-lg font-semibold mb-2">Journey Stats</h3>
+            <p>Time taken: {minutes}m {seconds}s</p>
+            <p>Decisions made: {decisions.length}</p>
+            <p>Ending: {getFinalAssessment(finalLocation)}</p>
+          </div>
+          <div className="bg-primary/5 p-4 rounded-lg">
+            <h3 className="text-lg font-semibold mb-2">Your Traits</h3>
+            <p>Risk Taking: {getRiskAssessment(riskScore)}</p>
+            <p>Diplomacy: {getDiplomacyAssessment(diplomacyScore)}</p>
+            <p>Exploration: {getExplorationAssessment(explorationScore)}</p>
+          </div>
         </div>
         
-        <div>
-          <h3 className={`text-lg font-cyber mb-1 ${darkMode ? 'text-white/80' : 'text-gray-700'}`}>Your Journey</h3>
-          <p className={darkMode ? 'text-white/70' : 'text-gray-600'}>
-            You made {decisions.length} decision{decisions.length !== 1 ? 's' : ''}.
-          </p>
+        <div className="h-64 mt-4">
+          <Bar data={chartData} options={chartOptions} />
         </div>
         
-        <div className="space-y-3">
-          <h3 className={`text-lg font-cyber mb-1 ${darkMode ? 'text-white/80' : 'text-gray-700'}`}>Your Traits</h3>
-          
-          <div>
-            <div className="flex justify-between mb-1">
-              <span className={darkMode ? 'text-neon-cyan' : 'text-blue-600'}>Bravery</span>
-              <span className={darkMode ? 'text-white/70' : 'text-gray-600'}>{analysis.bravery}%</span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div 
-                className="bg-neon-cyan h-2 rounded-full" 
-                style={{ width: `${analysis.bravery}%` }}
-              ></div>
-            </div>
+        {radarData && (
+          <div className="h-64 mt-8">
+            <h3 className="text-lg font-semibold mb-2 text-center">Your Essence Profile</h3>
+            <Radar data={radarData} options={radarOptions} />
           </div>
-          
-          <div>
-            <div className="flex justify-between mb-1">
-              <span className={darkMode ? 'text-neon-magenta' : 'text-purple-600'}>Strategic</span>
-              <span className={darkMode ? 'text-white/70' : 'text-gray-600'}>{analysis.strategic}%</span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div 
-                className="bg-neon-magenta h-2 rounded-full" 
-                style={{ width: `${analysis.strategic}%` }}
-              ></div>
-            </div>
-          </div>
-          
-          <div>
-            <div className="flex justify-between mb-1">
-              <span className={darkMode ? 'text-neon-yellow' : 'text-yellow-600'}>Impulsive</span>
-              <span className={darkMode ? 'text-white/70' : 'text-gray-600'}>{analysis.impulsive}%</span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div 
-                className="bg-neon-yellow h-2 rounded-full" 
-                style={{ width: `${analysis.impulsive}%` }}
-              ></div>
-            </div>
-          </div>
-          
-          <div>
-            <div className="flex justify-between mb-1">
-              <span className={darkMode ? 'text-red-400' : 'text-red-600'}>Chaotic</span>
-              <span className={darkMode ? 'text-white/70' : 'text-gray-600'}>{analysis.chaotic}%</span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div 
-                className="bg-red-400 h-2 rounded-full" 
-                style={{ width: `${analysis.chaotic}%` }}
-              ></div>
-            </div>
-          </div>
-          
-          <div>
-            <div className="flex justify-between mb-1">
-              <span className={darkMode ? 'text-green-400' : 'text-green-600'}>Story Completion</span>
-              <span className={darkMode ? 'text-white/70' : 'text-gray-600'}>{analysis.completion}%</span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div 
-                className="bg-green-400 h-2 rounded-full" 
-                style={{ width: `${analysis.completion}%` }}
-              ></div>
-            </div>
-          </div>
+        )}
+        
+        <div className="space-y-2">
+          <h3 className="text-lg font-semibold">Key Decisions</h3>
+          <ul className="list-disc pl-5 space-y-1 text-sm">
+            {decisions.map((decision, index) => (
+              <li key={index} className={darkMode ? "text-white/80" : "text-black/80"}>
+                {decision}
+              </li>
+            ))}
+          </ul>
         </div>
-      </div>
-      
-      <div className="text-center mt-6">
-        <ChoiceButton 
-          text="PLAY AGAIN" 
-          onClick={onRestart}
-          variant="primary"
-        />
-      </div>
-    </div>
+        
+        <div className="flex justify-center space-x-4 pt-4">
+          <ChoiceButton 
+            text="START OVER" 
+            onClick={onRestart} 
+            variant="secondary"
+          />
+          {onReturnToMenu && (
+            <ChoiceButton 
+              text="RETURN TO MENU" 
+              onClick={onReturnToMenu}
+              variant="accent"
+            />
+          )}
+        </div>
+      </CardContent>
+    </Card>
   );
 };
+
+// Helper functions for calculating scores
+function calculateRiskScore(decisions: string[], userEssence?: {[key: string]: number}): number {
+  if (userEssence) {
+    const riskValue = (userEssence.risk || 0) + (userEssence.chaos || 0);
+    const cautionValue = (userEssence.caution || 0) + (userEssence.harmony || 0);
+    
+    // Scale to 1-10
+    return Math.min(10, Math.max(1, 5 + riskValue - cautionValue));
+  }
+  
+  // For non-essence based stories
+  let score = 5; // Start at neutral
+  
+  const riskChoices = [
+    'brute force', 'fight', 'hack', 'power', 'challenge',
+    'danger', 'risky', 'combat', 'attack', 'infiltrate'
+  ];
+  const cautionChoices = [
+    'careful', 'caution', 'stealth', 'peace', 'hide',
+    'avoid', 'escape', 'safe', 'diplomatic', 'slow'
+  ];
+  
+  decisions.forEach(decision => {
+    const lowerDecision = decision.toLowerCase();
+    riskChoices.forEach(term => {
+      if (lowerDecision.includes(term)) score += 1;
+    });
+    cautionChoices.forEach(term => {
+      if (lowerDecision.includes(term)) score -= 1;
+    });
+  });
+  
+  return Math.min(10, Math.max(1, score)); // Ensure score is between 1 and 10
+}
+
+function calculateDiplomacyScore(decisions: string[], userEssence?: {[key: string]: number}): number {
+  if (userEssence) {
+    const diplomacyValue = (userEssence.diplomacy || 0) + (userEssence.harmony || 0) + (userEssence.commerce || 0);
+    const conflictValue = (userEssence.chaos || 0) + (userEssence.isolation || 0);
+    
+    // Scale to 1-10
+    return Math.min(10, Math.max(1, 5 + diplomacyValue - conflictValue));
+  }
+  
+  // For non-essence based stories
+  let score = 5; // Start at neutral
+  
+  const diplomacyChoices = [
+    'peace', 'talk', 'ally', 'friend', 'cooperate', 
+    'negotiate', 'help', 'assist', 'support', 'trade'
+  ];
+  const conflictChoices = [
+    'attack', 'fight', 'refuse', 'reject', 'destroy',
+    'sabotage', 'betray', 'alone', 'solo', 'isolate'
+  ];
+  
+  decisions.forEach(decision => {
+    const lowerDecision = decision.toLowerCase();
+    diplomacyChoices.forEach(term => {
+      if (lowerDecision.includes(term)) score += 1;
+    });
+    conflictChoices.forEach(term => {
+      if (lowerDecision.includes(term)) score -= 1;
+    });
+  });
+  
+  return Math.min(10, Math.max(1, score)); // Ensure score is between 1 and 10
+}
+
+function calculateExplorationScore(decisions: string[], userEssence?: {[key: string]: number}): number {
+  if (userEssence) {
+    const explorationValue = (userEssence.exploration || 0) + (userEssence.curiosity || 0) + (userEssence.knowledge || 0);
+    const cautiousValue = (userEssence.caution || 0);
+    
+    // Scale to 1-10
+    return Math.min(10, Math.max(1, 5 + explorationValue - cautiousValue));
+  }
+  
+  // For non-essence based stories
+  let score = 5; // Start at neutral
+  
+  const explorationChoices = [
+    'explore', 'discover', 'investigate', 'search', 'find',
+    'seek', 'learn', 'journey', 'venture', 'curiosity'
+  ];
+  const avoidanceChoices = [
+    'stay', 'remain', 'avoid', 'hide', 'back',
+    'leave', 'escape', 'retreat', 'ignore', 'reject'
+  ];
+  
+  decisions.forEach(decision => {
+    const lowerDecision = decision.toLowerCase();
+    explorationChoices.forEach(term => {
+      if (lowerDecision.includes(term)) score += 1;
+    });
+    avoidanceChoices.forEach(term => {
+      if (lowerDecision.includes(term)) score -= 1;
+    });
+  });
+  
+  return Math.min(10, Math.max(1, score)); // Ensure score is between 1 and 10
+}
+
+// Assessment text generators
+function getRiskAssessment(score: number): string {
+  if (score >= 9) return "Extremely Bold";
+  if (score >= 7) return "Risk Taker";
+  if (score >= 5) return "Balanced";
+  if (score >= 3) return "Cautious";
+  return "Very Conservative";
+}
+
+function getDiplomacyAssessment(score: number): string {
+  if (score >= 9) return "Natural Leader";
+  if (score >= 7) return "Diplomatic";
+  if (score >= 5) return "Reasonable";
+  if (score >= 3) return "Independent";
+  return "Lone Wolf";
+}
+
+function getExplorationAssessment(score: number): string {
+  if (score >= 9) return "Pioneer";
+  if (score >= 7) return "Adventurous";
+  if (score >= 5) return "Curious";
+  if (score >= 3) return "Methodical";
+  return "Hesitant";
+}
+
+function getFinalAssessment(finalLocation: string): string {
+  // Specific endings for starship story
+  if (['ancientPathways', 'kythariTech'].includes(finalLocation)) {
+    return "Alliance & Discovery";
+  }
+  if (['anomalyPower', 'xylosChallenge'].includes(finalLocation)) {
+    return "Power & Risk";
+  }
+  if (['anomalyCaution', 'xylosPeaceful'].includes(finalLocation)) {
+    return "Wisdom & Balance";
+  }
+  if (['leaveXylos'].includes(finalLocation)) {
+    return "Isolation & Regret";
+  }
+  if (['xylosTrade'].includes(finalLocation)) {
+    return "Trade & Progress";
+  }
+  
+  // Glitch City specific endings
+  if (['succeedGlitchMob', 'succeedIntel', 'leadRaid'].includes(finalLocation)) {
+    return "Revolutionary Hero";
+  }
+  if (['failGlitchMob', 'failIntel'].includes(finalLocation)) {
+    return "Captured Rebel";
+  }
+  if (['destroyCity'].includes(finalLocation)) {
+    return "Destroyer";
+  }
+  if (['controlEntity'].includes(finalLocation)) {
+    return "Digital Architect";
+  }
+  if (['continueAlone'].includes(finalLocation)) {
+    return "Silent Guardian";
+  }
+  if (['embraceSystem'].includes(finalLocation)) {
+    return "System Lord";
+  }
+  
+  return "Story Complete";
+}
 
 export default DecisionAnalysis;

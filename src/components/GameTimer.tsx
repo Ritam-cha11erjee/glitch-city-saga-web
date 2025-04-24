@@ -24,7 +24,7 @@ const GameTimer: React.FC<GameTimerProps> = ({ startTime }) => {
   };
   
   return (
-    <div className="flex items-center space-x-2 bg-black/40 backdrop-blur-sm px-3 py-2 rounded-md border border-neon-cyan/30 text-neon-cyan">
+    <div className="flex items-center space-x-2 bg-black/60 backdrop-blur-sm px-3 py-2 rounded-md border border-neon-cyan/30 text-neon-cyan animate-pulse-slow">
       <Timer className="w-4 h-4" />
       <span className="font-cyber">{formatTime(elapsedTime)}</span>
     </div>

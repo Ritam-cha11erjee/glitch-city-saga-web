@@ -70,6 +70,15 @@ export default {
 					yellow: '#FFFF00',
 					purple: '#8B5CF6',
 					blue: '#1EAEDB',
+					red: '#FF3366',
+					green: '#33FF99'
+				},
+				// Starship theme colors
+				navy: {
+					'900': '#0A1535',
+					'800': '#122347',
+					'700': '#1A3059',
+					'600': '#234A8C',
 				}
 			},
 			borderRadius: {
@@ -135,6 +144,35 @@ export default {
 					'10%, 30%, 50%, 70%, 90%': { transform: 'translateX(-5px)' },
 					'20%, 40%, 60%, 80%': { transform: 'translateX(5px)' },
 				},
+				'pulse-slow': {
+					'0%, 100%': { opacity: '1' },
+					'50%': { opacity: '0.7' },
+				},
+				'star-twinkle': {
+					'0%, 100%': { 
+						opacity: '0.4',
+						transform: 'scale(0.8)'
+					},
+					'50%': { 
+						opacity: '1',
+						transform: 'scale(1.2)'
+					},
+				},
+				'laser-flash': {
+					'0%': { opacity: '0.2' },
+					'50%': { opacity: '1' },
+					'100%': { opacity: '0.2' },
+				},
+				'engine-pulse': {
+					'0%, 100%': { 
+						filter: 'brightness(1) blur(3px)',
+						transform: 'scale(0.95)'
+					},
+					'50%': { 
+						filter: 'brightness(1.3) blur(5px)',
+						transform: 'scale(1.05)'
+					},
+				},
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
@@ -146,10 +184,15 @@ export default {
 				'fade-out': 'fade-out 0.5s ease-out',
 				'scale-in': 'scale-in 0.5s ease-out',
 				'shake': 'shake 0.5s ease-in-out',
+				'pulse-slow': 'pulse-slow 2s ease-in-out infinite',
+				'star-twinkle': 'star-twinkle 3s ease-in-out infinite',
+				'laser-flash': 'laser-flash 0.3s linear infinite',
+				'engine-pulse': 'engine-pulse 2s ease-in-out infinite',
 			},
 			backgroundImage: {
 				'glitch-pattern': "url('/glitch-background.png')",
 				'cyberpunk-grid': "linear-gradient(rgba(0, 255, 255, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 255, 255, 0.1) 1px, transparent 1px)",
+				'space-stars': "radial-gradient(white, rgba(255, 255, 255, 0.2) 2px, transparent 40px)"
 			},
 			fontFamily: {
 				'glitch': ['Orbitron', 'sans-serif'],
