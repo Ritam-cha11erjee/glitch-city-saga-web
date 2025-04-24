@@ -21,7 +21,7 @@ const GameMenu: React.FC<GameMenuProps> = ({ onStartGame }) => {
       <Carousel className="w-full">
         <CarouselContent>
           {/* Glitch City Story */}
-          <CarouselItem className="basis-full md:basis-1/2">
+          <CarouselItem className="basis-full">
             <Card className="bg-black/50 backdrop-blur-sm border border-neon-cyan/30 rounded-lg overflow-hidden h-full">
               <div className="h-40 bg-glitch-pattern bg-cover bg-center"></div>
               <CardHeader>
@@ -46,7 +46,7 @@ const GameMenu: React.FC<GameMenuProps> = ({ onStartGame }) => {
           </CarouselItem>
           
           {/* Starship Story */}
-          <CarouselItem className="basis-full md:basis-1/2">
+          <CarouselItem className="basis-full">
             <Card className="bg-navy-900/60 backdrop-blur-sm border border-neon-blue/30 rounded-lg overflow-hidden h-full">
               <div className="h-40 bg-gradient-to-b from-blue-900 to-purple-900 bg-cover bg-center relative overflow-hidden">
                 <div className="absolute inset-0 flex items-center justify-center">

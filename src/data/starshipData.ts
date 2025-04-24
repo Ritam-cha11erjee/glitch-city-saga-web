@@ -5,7 +5,6 @@ interface Choice {
   essenceChange?: {
     [key: string]: number;
   };
-  description?: string;
 }
 
 interface StoryLocation {
@@ -24,19 +23,17 @@ interface StoryDataType {
 
 const starshipData: StoryDataType = {
   start: {
-    text: "You are the Conductor of the 'Aetheria', a starship on its first trip. Your choices will change the ship and how you meet other beings in space.  You are in space. What do you do first?",
+    text: "You are the Conductor of the 'Aetheria', a starship on its first voyage through the cosmos. Your choices will determine the ship's capabilities and how you interact with other beings in space. You are in deep space. What will you do first?",
     choices: [
       {
-        text: "Make Ship Ready",
+        text: "Stabilize Ship Systems",
         target: "harmonize",
         essenceChange: { harmony: 1, energy: -5 },
-        description: "Make the ship's core stable.",
       },
       {
-        text: "Go Explore",
+        text: "Explore The Unknown",
         target: "explore",
         essenceChange: { chaos: 1, energy: 10 },
-        description: "Go into the unknown.",
       },
     ],
     visualState: {
@@ -46,19 +43,17 @@ const starshipData: StoryDataType = {
     },
   },
   harmonize: {
-    text: "You make the Aetheria's core stable. A smooth blue energy flows in the ship. The ship hums quietly. You get a signal from the Ky'thari nearby.",
+    text: "You harmonize the Aetheria's core systems. A smooth blue energy flows through the ship. The vessel hums quietly with balanced power. You detect a signal from the Ky'thari civilization nearby.",
     choices: [
       {
-        text: "Offer peace",
+        text: "Extend Peace Offering",
         target: "kythariPeace",
         essenceChange: { harmony: 2, diplomacy: 1 },
-        description: "Show you want to be friends.",
       },
       {
-        text: "Send a probe",
+        text: "Send Reconnaissance Probe",
         target: "kythariExplore",
         essenceChange: { neutrality: 1, curiosity: 1 },
-        description: "Get more info first.",
       },
     ],
     visualState: {
@@ -68,19 +63,17 @@ const starshipData: StoryDataType = {
     },
   },
   explore: {
-    text: "You use the impulse drive and move fast. The Aetheria vibrates with energy. You find a new star system – the Xylosian Verge.",
+    text: "You engage the impulse drive and surge forward into uncharted space. The Aetheria vibrates with raw energy. Soon you discover a new star system – the Xylosian Verge, shimmering with possibilities.",
     choices: [
       {
-        text: "Go to Xylos",
+        text: "Enter Xylosian Space",
         target: "xylosDiplomacy",
         essenceChange: { chaos: 1, exploration: 1 },
-        description: "Enter the system and meet them.",
       },
       {
-        text: "Scan for stuff",
+        text: "Scan For Resources",
         target: "xylosResources",
         essenceChange: { neutrality: 1, greed: 1 },
-        description: "Look for valuable things.",
       },
     ],
     visualState: {
@@ -90,19 +83,17 @@ const starshipData: StoryDataType = {
     },
   },
   kythariPeace: {
-    text: "The Ky'thari like your peace offering. Their forms match your ship's energy. They offer knowledge of old paths.",
+    text: "The Ky'thari respond favorably to your peace offering. Their crystalline forms resonate with your ship's energy signature. They offer knowledge of ancient cosmic pathways known only to their kind.",
     choices: [
       {
-        text: "Take their help",
+        text: "Accept Their Guidance",
         target: "ancientPathways",
         essenceChange: { harmony: 1, knowledge: 2 },
-        description: "Follow the path.",
       },
       {
-        text: "Trade tech",
+        text: "Exchange Technologies",
         target: "kythariTech",
         essenceChange: { neutrality: 1, progress: 1 },
-        description: "Share technology.",
       },
     ],
     visualState: {
@@ -112,19 +103,17 @@ const starshipData: StoryDataType = {
     },
   },
   kythariExplore: {
-    text: "The Ky'thari are unsure about your probe. They give little info, their forms dimming a bit. You learn of something strange nearby.",
+    text: "The Ky'thari react with caution to your probe. Their crystalline forms dim slightly as they share limited information. Your sensors detect an unusual spacetime anomaly in a nearby sector.",
     choices: [
       {
-        text: "Check anomaly",
+        text: "Investigate Anomaly",
         target: "anomaly",
         essenceChange: { curiosity: 2, risk: 1 },
-        description: "Explore the unknown.",
       },
       {
-        text: "Keep going",
+        text: "Continue Exploration",
         target: "explore",
         essenceChange: { exploration: 1, neutrality: 1 },
-        description: "Move on.",
       },
     ],
     visualState: {
@@ -134,19 +123,17 @@ const starshipData: StoryDataType = {
     },
   },
   xylosDiplomacy: {
-    text: "The Xylosians, beings of metal, are interested in you. They like strength. They want to test your ship's power.",
+    text: "The Xylosians, sentient metallic beings, observe your approach with interest. They value strength and capability above all. Their leader challenges you to demonstrate your ship's power in a controlled display.",
     choices: [
       {
-        text: "Accept test",
+        text: "Accept Challenge",
         target: "xylosChallenge",
         essenceChange: { chaos: 2, strength: 2 },
-        description: "Show your ship's power.",
       },
       {
-        text: "Show peaceful power",
+        text: "Demonstrate Peaceful Power",
         target: "xylosPeaceful",
         essenceChange: { harmony: 1, diplomacy: 1 },
-        description: "Show a controlled display.",
       },
     ],
     visualState: {
@@ -156,19 +143,17 @@ const starshipData: StoryDataType = {
     },
   },
   xylosResources: {
-    text: "The Xylosians let you take resources, but are not friendly. You get materials, but miss making friends.",
+    text: "The Xylosians permit your resource gathering but remain distant. You extract valuable materials from their system's outer reaches, but miss an opportunity to forge a meaningful connection.",
     choices: [
       {
-        text: "Leave Xylos",
+        text: "Depart With Resources",
         target: "leaveXylos",
         essenceChange: { greed: 1, isolation: 1 },
-        description: "Depart.",
       },
       {
-        text: "Try to trade",
+        text: "Initiate Trade Relations",
         target: "xylosTrade",
         essenceChange: { neutrality: 1, commerce: 1 },
-        description: "Try to improve relations.",
       },
     ],
     visualState: {
@@ -178,7 +163,7 @@ const starshipData: StoryDataType = {
     },
   },
   ancientPathways: {
-    text: "The Ky'thari guide you through old paths, showing hidden routes and wonders. The Aetheria gains new abilities. You feel connected to the galaxy.",
+    text: "The Ky'thari guide you through hidden cosmic pathways, revealing wonders beyond imagination. The Aetheria gains new navigational capabilities and your understanding of space expands. You feel deeply connected to the galactic tapestry.",
     choices: [],
     visualState: {
       color: "teal",
@@ -187,7 +172,7 @@ const starshipData: StoryDataType = {
     },
   },
   kythariTech: {
-    text: "You trade tech with the Ky'thari, improving both your ship and them. You become strong allies. The Aetheria becomes more efficient.",
+    text: "Your technological exchange with the Ky'thari benefits both civilizations. The Aetheria's systems evolve in unexpected ways while you share Earth's scientific achievements. You've made powerful allies in this vast cosmos.",
     choices: [],
     visualState: {
       color: "green",
@@ -195,20 +180,18 @@ const starshipData: StoryDataType = {
       background: "kythari",
     },
   },
-  anomaly: {
-    text: "You investigate the anomaly. It's a strange area in space and time, with wild energy. Do you go carefully, or try to use its power?",
+    anomaly: {
+    text: "You approach the spacetime anomaly with caution. It pulses with chaotic energy, warping reality around your ship. Sensors indicate immense power that could either enhance your systems or tear them apart. How will you proceed?",
     choices: [
       { 
-        text: "Go slowly", 
+        text: "Proceed With Caution", 
         target: "anomalyCaution", 
-        essenceChange: { neutrality: 2, caution: 2 },
-        description: "Proceed with caution."
+        essenceChange: { neutrality: 2, caution: 2 }
       },
       { 
-        text: "Use power", 
+        text: "Harness The Energy", 
         target: "anomalyPower", 
-        essenceChange: { chaos: 3, risk: 3 },
-        description: "Harness the anomaly's energy."
+        essenceChange: { chaos: 3, risk: 3 }
       },
     ],
     visualState: { 
@@ -218,7 +201,7 @@ const starshipData: StoryDataType = {
     }
   },
   anomalyCaution: {
-    text: "You go through the anomaly carefully. The Aetheria is shaken by the energy, but is okay. You get data, but don't use the anomaly's full power.",
+    text: "You navigate the anomaly with careful precision. The Aetheria shudders as strange energies wash over its hull, but your cautious approach preserves its integrity. You gather valuable data but leave the anomaly's full potential untapped.",
     choices: [],
     visualState: { 
       color: "blue", 
@@ -227,7 +210,7 @@ const starshipData: StoryDataType = {
     }
   },
   anomalyPower: {
-    text: "You try to use the anomaly's power. The Aetheria gets a lot of energy, becoming very powerful, but unstable. You risk destroying the ship, but gain a lot of power.",
+    text: "You direct the Aetheria into the heart of the anomaly. Energy cascades through your systems as reality bends around you. The ship trembles at the edge of destruction but emerges transformed, crackling with power unlike anything humans have wielded before.",
     choices: [],
     visualState: { 
       color: "red", 
@@ -236,7 +219,7 @@ const starshipData: StoryDataType = {
     }
   },
   xylosChallenge: {
-    text: "You accept the Xylosian challenge. The Aetheria shows its power. You earn their respect. They offer help and weapons.",
+    text: "The Aetheria's systems surge to full capacity in an impressive display of firepower and technological prowess. The Xylosians observe with growing respect. Your successful demonstration earns their allegiance and access to their advanced weaponry.",
     choices: [],
     visualState: { 
       color: "red", 
@@ -245,7 +228,7 @@ const starshipData: StoryDataType = {
     }
   },
   xylosPeaceful: {
-    text: "You show controlled power. The Aetheria displays a beautiful, smooth show, showing both strength and control. The Xylosians are impressed by your control and wisdom. They offer help and share their tech.",
+    text: "You orchestrate a harmonious display of the Aetheria's capabilities, demonstrating both power and precise control. The Xylosians admire your discipline and wisdom. They offer alliance and share their technological insights with your crew.",
     choices: [],
     visualState: { 
       color: "blue", 
@@ -254,7 +237,7 @@ const starshipData: StoryDataType = {
     }
   },
   leaveXylos: {
-    text: "You leave Xylos with the resources, but without making friends. The Aetheria feels alone. You keep going, but regret the missed chance.",
+    text: "You depart from Xylosian space with valuable resources but no diplomatic connection. The Aetheria continues its journey in solitude. As stars streak by, you wonder about the alliance that might have been.",
     choices: [],
     visualState: { 
       color: "orange", 
@@ -263,7 +246,7 @@ const starshipData: StoryDataType = {
     }
   },
   xylosTrade: {
-    text: "You trade with the Xylosians, making a good relationship. The Aetheria is improved by the new tech. You continue your journey with a new ally.",
+    text: "You establish trade relations with the Xylosians, exchanging resources for technological insights. The Aetheria is upgraded with their advanced metallurgical techniques. Your diplomatic success ensures a valuable ally in this sector of space.",
     choices: [],
     visualState: { 
       color: "green", 

@@ -48,26 +48,26 @@ const StarshipBackground: React.FC<StarshipBackgroundProps> = ({
 
   // Determine background color based on story location
   const getBackgroundColor = () => {
-    if (!currentLocation) return darkMode ? '#050A20' : '#0A1535';
+    if (!currentLocation) return darkMode ? '#050A20' : '#050A20'; // Always dark for space
     
     switch (currentLocation) {
       case 'anomaly':
       case 'anomalyPower':
       case 'anomalyCaution':
-        return darkMode ? '#1A0A30' : '#2C1A4A';
+        return '#1A0A30';
       case 'xylosCombat':
       case 'xylosChallenge':
-        return darkMode ? '#300A0A' : '#4A1A1A';
+        return '#300A0A';
       case 'kythari':
       case 'kythariPeace':
       case 'kythariExplore':
       case 'kythariTech':
-        return darkMode ? '#0A301A' : '#1A4A2C';
+        return '#0A301A';
       case 'ancient':
       case 'ancientPathways':
-        return darkMode ? '#1A2030' : '#2C3A4A';
+        return '#1A2030';
       default:
-        return darkMode ? '#050A20' : '#0A1535';
+        return '#050A20';
     }
   };
 
@@ -125,7 +125,7 @@ const StarshipBackground: React.FC<StarshipBackgroundProps> = ({
         y: Math.random() * height * 0.8 + height * 0.1,
         size: Math.random() * 60 + 40,
         color: `hsl(${hue}, ${saturation}%, ${lightness}%)`,
-        speed: Math.random() * 0.5 + 0.2,
+        speed: Math.random() * 2 + 2, // Increased speed (was 0.2-0.7)
         active: true
       };
       
@@ -134,11 +134,11 @@ const StarshipBackground: React.FC<StarshipBackgroundProps> = ({
       // Remove planet after it exits screen
       setTimeout(() => {
         setPlanets(prev => prev.filter(p => p !== newPlanet));
-      }, 60000);
+      }, 15000); // Reduced from 60000 to match faster speed
     };
     
     // Spawn planets at random intervals
-    const planetInterval = setInterval(spawnPlanet, 15000 + Math.random() * 20000);
+    const planetInterval = setInterval(spawnPlanet, 8000 + Math.random() * 10000); // More frequent planets
     return () => clearInterval(planetInterval);
   }, []);
 
@@ -195,28 +195,44 @@ const StarshipBackground: React.FC<StarshipBackgroundProps> = ({
       ctx.fillStyle = getBackgroundColor();
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Draw stars with twinkling effect
+      // Draw stars with twinkling effect and enhanced mouse interaction
       stars.forEach(star => {
         const distance = Math.sqrt(
           Math.pow(star.x - mousePosition.x, 2) + 
           Math.pow(star.y - mousePosition.y, 2)
         );
         
-        // Mouse hover effect (stars near mouse grow and brighten)
-        const mouseEffect = distance < 100 ? (1 - distance / 100) * 3 : 0;
+        // Enhanced mouse hover effect (stars near mouse grow and brighten more)
+        const mouseEffect = distance < 150 ? (1 - distance / 150) * 5 : 0;
         const twinkle = Math.sin(time * star.twinkleSpeed + star.twinklePhase) * 0.5 + 0.5;
         
-        // Calculate size with both twinkling and mouse hover effects
+        // Calculate size with both twinkling and enhanced mouse hover effects
         const size = star.originalSize * (1 + twinkle * 0.5 + mouseEffect);
         
         // Draw the star
         ctx.beginPath();
         ctx.arc(star.x, star.y, size, 0, Math.PI * 2);
         
-        // Change color based on mouse proximity
+        // Enhanced glow effect based on mouse proximity
         if (mouseEffect > 0) {
+          // Create a radial gradient for the glow
+          const gradient = ctx.createRadialGradient(
+            star.x, star.y, 0,
+            star.x, star.y, size * 3
+          );
+          
           const hue = (time / 50) % 360;
-          ctx.fillStyle = `hsl(${hue}, 100%, 80%)`;
+          gradient.addColorStop(0, `hsl(${hue}, 100%, 80%)`);
+          gradient.addColorStop(1, 'rgba(0,0,0,0)');
+          
+          // Draw the glow
+          ctx.fillStyle = gradient;
+          ctx.fill();
+          
+          // Draw the star center
+          ctx.beginPath();
+          ctx.arc(star.x, star.y, size, 0, Math.PI * 2);
+          ctx.fillStyle = `hsl(${hue}, 100%, 90%)`;
         } else {
           ctx.fillStyle = star.color;
         }
@@ -224,7 +240,7 @@ const StarshipBackground: React.FC<StarshipBackgroundProps> = ({
         ctx.fill();
       });
 
-      // Draw planets
+      // Draw planets with increased speed
       planets.forEach(planet => {
         planet.x -= planet.speed;
         
@@ -270,7 +286,7 @@ const StarshipBackground: React.FC<StarshipBackgroundProps> = ({
         ctx.globalAlpha = 1;
       });
 
-      // Draw the starship
+      // Draw the starship - make it bigger
       drawStarship(ctx, canvas.width, canvas.height, time, shake);
       
       animationFrameId = requestAnimationFrame(render);
@@ -280,7 +296,7 @@ const StarshipBackground: React.FC<StarshipBackgroundProps> = ({
     return () => cancelAnimationFrame(animationFrameId);
   }, [stars, planets, lasers, darkMode, shake, currentLocation, mousePosition]);
 
-  // Draw starship function
+  // Draw starship function - made bigger
   const drawStarship = (
     ctx: CanvasRenderingContext2D, 
     canvasWidth: number, 
@@ -298,6 +314,8 @@ const StarshipBackground: React.FC<StarshipBackgroundProps> = ({
     
     ctx.save();
     ctx.translate(shipX + shakeX, shipY + shakeY);
+    // Scale up the ship by 1.4x
+    ctx.scale(1.4, 1.4);
     
     // Draw engine exhaust/jet trail
     const jetLength = 120 + Math.sin(time * 0.01) * 20;

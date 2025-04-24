@@ -14,7 +14,7 @@ import {
   LineElement,
   Filler,
 } from 'chart.js';
-import { Bar, Radar } from 'react-chartjs-2';
+import { Bar } from 'react-chartjs-2';
 
 ChartJS.register(
   CategoryScale,
@@ -108,58 +108,6 @@ const DecisionAnalysis: React.FC<DecisionAnalysisProps> = ({
     maintainAspectRatio: false,
   };
 
-  // Create radar chart for essence attributes if present
-  let radarData = null;
-  if (userEssence) {
-    const essenceValues = Object.entries(userEssence)
-      .filter(([_, value]) => value !== 0)
-      .sort((a, b) => b[1] - a[1]);
-    
-    if (essenceValues.length > 0) {
-      radarData = {
-        labels: essenceValues.map(([key]) => key.charAt(0).toUpperCase() + key.slice(1)),
-        datasets: [
-          {
-            label: 'Essence Values',
-            data: essenceValues.map(([_, value]) => value),
-            backgroundColor: 'rgba(75, 192, 192, 0.2)',
-            borderColor: 'rgb(75, 192, 192)',
-            pointBackgroundColor: 'rgb(75, 192, 192)',
-            pointBorderColor: '#fff',
-            pointHoverBackgroundColor: '#fff',
-            pointHoverBorderColor: 'rgb(75, 192, 192)',
-            fill: true
-          }
-        ]
-      };
-    }
-  }
-
-  const radarOptions = {
-    scales: {
-      r: {
-        angleLines: {
-          color: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
-        },
-        grid: {
-          color: darkMode ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'
-        },
-        pointLabels: {
-          color: darkMode ? '#aaa' : '#333'
-        },
-        ticks: {
-          color: darkMode ? '#aaa' : '#333',
-          backdropColor: 'transparent'
-        }
-      }
-    },
-    plugins: {
-      legend: {
-        display: false
-      },
-    }
-  };
-  
   return (
     <Card className={`w-full ${darkMode ? 'bg-black/70 text-white' : 'bg-white/90 text-black'} backdrop-blur-md border-primary/30`}>
       <CardHeader>
@@ -187,13 +135,6 @@ const DecisionAnalysis: React.FC<DecisionAnalysisProps> = ({
         <div className="h-64 mt-4">
           <Bar data={chartData} options={chartOptions} />
         </div>
-        
-        {radarData && (
-          <div className="h-64 mt-8">
-            <h3 className="text-lg font-semibold mb-2 text-center">Your Essence Profile</h3>
-            <Radar data={radarData} options={radarOptions} />
-          </div>
-        )}
         
         <div className="space-y-2">
           <h3 className="text-lg font-semibold">Key Decisions</h3>

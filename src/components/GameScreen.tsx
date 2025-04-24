@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useAudio } from '../hooks/useAudio';
 import GlitchText from './GlitchText';
@@ -19,7 +18,6 @@ interface Choice {
   essenceChange?: {
     [key: string]: number;
   };
-  description?: string;
 }
 
 const GameScreen: React.FC = () => {
@@ -53,19 +51,16 @@ const GameScreen: React.FC = () => {
     commerce: 0,
     caution: 0
   });
-  
-  // Define risky locations that should trigger screen shake
+
   const riskyLocations = {
     glitchCity: ['missionAccept', 'infiltrateHub', 'carryOutTask', 'sabotageTask'],
     starship: ['anomaly', 'anomalyPower', 'xylosChallenge', 'anomalyCaution']
   };
-  
-  // Audio effects with proper options
+
   const transitionSound = useAudio('/sounds/glitch-transition.mp3', { volume: 0.5 });
   const buttonClickSound = useAudio('/sounds/button-click.mp3', { volume: 0.3 });
   const spaceEngineSound = useAudio('/sounds/space-engine.mp3', { volume: 0.2, loop: true });
-  
-  // Track mouse position for star interaction
+
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       setMousePosition({ x: e.clientX, y: e.clientY });
@@ -74,8 +69,7 @@ const GameScreen: React.FC = () => {
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
-  
-  // Initialize the game state from the story data
+
   useEffect(() => {
     if (!gameStarted || !storyType) return;
     
@@ -85,22 +79,18 @@ const GameScreen: React.FC = () => {
       setLocationText(storyData[currentLocation].text);
       setChoices(storyData[currentLocation].choices || []);
       
-      // Check if this is a risky location
       setScreenShake(riskyLocations[storyType]?.includes(currentLocation) || false);
       
-      // Handle space engine sound for starship
       if (storyType === 'starship' && gameStarted) {
         spaceEngineSound.play();
       }
       
-      // Check if game has ended (no more choices)
       if (gameStarted && (!storyData[currentLocation].choices || storyData[currentLocation].choices.length === 0)) {
         handleGameEnd();
       }
     }
   }, [currentLocation, gameStarted, storyType]);
-  
-  // Stop engine sound when game ends
+
   useEffect(() => {
     if (gameEnded && storyType === 'starship') {
       spaceEngineSound.stop();
@@ -109,16 +99,14 @@ const GameScreen: React.FC = () => {
       spaceEngineSound.stop();
     };
   }, [gameEnded, storyType]);
-  
+
   const handleChoice = async (target: string, choiceText: string, essenceChange?: {[key: string]: number}) => {
     buttonClickSound.play();
     setIsTransitioning(true);
     await transitionSound.play();
     
-    // Record this decision
     setDecisionHistory(prev => [...prev, `${currentLocation} → ${target}: ${choiceText}`]);
     
-    // Update user essence if exists
     if (essenceChange) {
       setUserEssence(prev => {
         const newEssence = {...prev};
@@ -129,7 +117,6 @@ const GameScreen: React.FC = () => {
       });
     }
     
-    // Short delay to allow transition animation
     setTimeout(() => {
       setCurrentLocation(target);
       setIsTransitioning(false);
@@ -143,7 +130,6 @@ const GameScreen: React.FC = () => {
     setStartTime(Date.now());
     buttonClickSound.play();
     
-    // Reset essence for new games
     setUserEssence({
       harmony: 0,
       chaos: 0,
@@ -162,7 +148,7 @@ const GameScreen: React.FC = () => {
       caution: 0
     });
   };
-  
+
   const handleGameEnd = () => {
     setGameEnded(true);
     setEndTime(Date.now());
@@ -170,7 +156,7 @@ const GameScreen: React.FC = () => {
       spaceEngineSound.stop();
     }
   };
-  
+
   const handleRestart = () => {
     setCurrentLocation(storyType === 'glitchCity' ? 'download' : 'start');
     setGameEnded(false);
@@ -179,7 +165,6 @@ const GameScreen: React.FC = () => {
     setEndTime(null);
     buttonClickSound.play();
     
-    // Reset essence for new games
     setUserEssence({
       harmony: 0,
       chaos: 0,
@@ -198,7 +183,7 @@ const GameScreen: React.FC = () => {
       caution: 0
     });
   };
-  
+
   const handleReturnToMenu = () => {
     setGameStarted(false);
     setStoryType(null);
@@ -209,8 +194,7 @@ const GameScreen: React.FC = () => {
     buttonClickSound.play();
     spaceEngineSound.stop();
   };
-  
-  // Start screen UI
+
   if (!gameStarted) {
     return (
       <div className={`min-h-screen flex flex-col items-center justify-center p-6 overflow-hidden relative ${darkMode ? 'bg-black' : 'bg-gray-100'}`}>
@@ -240,12 +224,12 @@ const GameScreen: React.FC = () => {
       </div>
     );
   }
-  
+
   return (
     <div 
       className={`min-h-screen flex flex-col items-center justify-center p-4 md:p-8 transition-opacity duration-500 relative ${
         isTransitioning ? 'opacity-0' : 'opacity-100'
-      } ${darkMode ? 'bg-black' : 'bg-gray-100'}`}
+      } ${darkMode ? 'bg-black' : 'bg-black'}`}
     >
       {storyType === 'starship' ? (
         <StarshipBackground 
@@ -312,7 +296,7 @@ const GameScreen: React.FC = () => {
             onRestart={handleRestart}
             onReturnToMenu={handleReturnToMenu}
             darkMode={darkMode}
-            userEssence={storyType === 'starship' ? userEssence : undefined}
+            userEssence={userEssence}
           />
         ) : choices.length > 0 ? (
           <div className="flex flex-col items-center w-full space-y-4">
@@ -321,7 +305,6 @@ const GameScreen: React.FC = () => {
                 key={index}
                 text={choice.text}
                 onClick={() => handleChoice(choice.target, choice.text, choice.essenceChange)}
-                description={choice.description}
                 variant={index % 3 === 0 ? 'primary' : index % 3 === 1 ? 'secondary' : 'accent'}
               />
             ))}
