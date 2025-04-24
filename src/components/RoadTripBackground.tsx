@@ -1,4 +1,3 @@
-
 import { useEffect, useState, useRef } from 'react';
 
 interface RoadTripBackgroundProps {
@@ -27,10 +26,8 @@ const RoadTripBackground: React.FC<RoadTripBackgroundProps> = ({
   const animationFrameRef = useRef<number>();
   const lastFoodSpawnTime = useRef<number>(0);
   
-  // Change scene based on current location
   useEffect(() => {
     if (currentLocation) {
-      // Choose time of day based on location
       const locationToTime: {[key: string]: 'day' | 'sunset' | 'night'} = {
         start: 'day',
         samosa: 'day',
@@ -50,7 +47,6 @@ const RoadTripBackground: React.FC<RoadTripBackgroundProps> = ({
         theEnd: 'day'
       };
       
-      // Choose weather based on location
       const locationToWeather: {[key: string]: 'sunny' | 'cloudy' | 'rainy' | 'stormy'} = {
         start: 'sunny',
         samosa: 'sunny',
@@ -75,11 +71,9 @@ const RoadTripBackground: React.FC<RoadTripBackgroundProps> = ({
     }
   }, [currentLocation]);
 
-  // Handle car movement
   useEffect(() => {
     const moveCarInterval = setInterval(() => {
       setCarPosition(prev => {
-        // Change direction when reaching edges
         if (prev > 50) {
           setCarDirection(-1);
           return prev - 1;
@@ -94,15 +88,12 @@ const RoadTripBackground: React.FC<RoadTripBackgroundProps> = ({
     return () => clearInterval(moveCarInterval);
   }, [carDirection]);
 
-  // Flash headlights and exhaust periodically
   useEffect(() => {
-    // Headlights
     const headlightInterval = setInterval(() => {
       setHeadlightFlash(true);
       setTimeout(() => setHeadlightFlash(false), 200);
     }, 5000);
     
-    // Exhaust
     const exhaustInterval = setInterval(() => {
       setExhaust(true);
       setTimeout(() => setExhaust(false), 300);
@@ -114,23 +105,20 @@ const RoadTripBackground: React.FC<RoadTripBackgroundProps> = ({
     };
   }, []);
 
-  // Spawn food items at mouse position
   useEffect(() => {
     const generateFoodItems = (timestamp: number) => {
-      // Only spawn new item every 500ms
       if (timestamp - lastFoodSpawnTime.current > 500) {
         const newItem = {
           id: Date.now(),
           x: mousePosition.x,
           y: mousePosition.y,
           type: Math.random() > 0.5 ? 'samosa' as const : 'potato' as const,
-          size: Math.random() * 30 + 30, // Random size between 30-60px
+          size: Math.random() * 30 + 30,
         };
         setFoodItems(prev => [...prev.filter(item => item.y < window.innerHeight), newItem]);
         lastFoodSpawnTime.current = timestamp;
       }
       
-      // Move food items down
       setFoodItems(prev => 
         prev.map(item => ({
           ...item,
@@ -150,7 +138,6 @@ const RoadTripBackground: React.FC<RoadTripBackgroundProps> = ({
     };
   }, [mousePosition.x, mousePosition.y]);
 
-  // Get background based on time of day
   const getBackground = () => {
     switch(timeOfDay) {
       case 'day':
@@ -164,7 +151,6 @@ const RoadTripBackground: React.FC<RoadTripBackgroundProps> = ({
     }
   };
 
-  // Weather effects
   const renderWeatherEffects = () => {
     switch(weather) {
       case 'cloudy':
@@ -198,43 +184,32 @@ const RoadTripBackground: React.FC<RoadTripBackgroundProps> = ({
 
   return (
     <div className={`fixed inset-0 transition-colors duration-1000 bg-gradient-to-b ${getBackground()} overflow-hidden`}>
-      {/* Base landscape */}
       <div className="absolute bottom-0 w-full h-40 bg-gradient-to-t from-green-700 to-green-500"></div>
       <div className="absolute bottom-0 w-full h-20 bg-gradient-to-t from-brown-800 to-green-700"></div>
       <div className="absolute bottom-0 w-full h-1 bg-gray-800"></div>
       
-      {/* Road */}
       <div className="absolute bottom-20 w-full h-16 bg-gray-700 flex justify-center items-center">
         <div className="w-full h-1 border-t-2 border-dashed border-yellow-400"></div>
       </div>
       
-      {/* Weather effects */}
       {renderWeatherEffects()}
       
-      {/* Tata Sumo car - side view */}
       <div 
         className={`absolute bottom-36 transform transition-transform duration-300 ${shake ? 'animate-car-shake' : ''}`}
         style={{ left: `calc(50% + ${carPosition}px)` }}
       >
-        {/* Car body */}
         <div className="relative">
-          {/* Main body */}
           <div className="w-80 h-32 bg-gray-700 rounded-md border-2 border-black relative">
-            {/* Car windows */}
             <div className="absolute top-4 left-12 w-60 h-10 bg-blue-200 border border-black"></div>
             <div className="absolute top-4 left-4 w-8 h-10 bg-blue-200 border border-black"></div>
             <div className="absolute top-4 right-4 w-8 h-10 bg-blue-200 border border-black"></div>
             
-            {/* Headlights */}
             <div className={`absolute bottom-6 left-0 w-6 h-6 rounded-full ${headlightFlash ? 'bg-yellow-300 animate-pulse shadow-headlight' : 'bg-gray-300'}`}></div>
             
-            {/* Taillights */}
             <div className="absolute bottom-6 right-0 w-6 h-6 rounded-full bg-red-500"></div>
             
-            {/* Exhaust pipe */}
             <div className="absolute bottom-4 right-2 w-4 h-2 bg-gray-400 rounded-sm"></div>
             
-            {/* Exhaust smoke */}
             {exhaust && (
               <>
                 <div className="absolute bottom-4 right-4 w-4 h-4 rounded-full bg-gray-400 opacity-80 animate-smoke-1"></div>
@@ -243,12 +218,10 @@ const RoadTripBackground: React.FC<RoadTripBackgroundProps> = ({
               </>
             )}
             
-            {/* Horn OK Please */}
             <div className="absolute top-16 right-10 w-20 h-6 bg-yellow-400 flex justify-center items-center">
               <span className="text-[10px] font-bold">HORN OK PLEASE</span>
             </div>
             
-            {/* Wheels */}
             <div 
               className="absolute -bottom-8 left-12 w-16 h-16 bg-black rounded-full border-4 border-gray-300 flex justify-center items-center"
               style={{ animation: 'spin 1s linear infinite' }}
@@ -265,12 +238,10 @@ const RoadTripBackground: React.FC<RoadTripBackgroundProps> = ({
         </div>
       </div>
       
-      {/* Birds */}
       <div className="absolute top-20 left-10 w-4 h-2 bg-black animate-bird-1"></div>
       <div className="absolute top-40 right-20 w-4 h-2 bg-black animate-bird-2"></div>
       <div className="absolute top-60 left-40 w-4 h-2 bg-black animate-bird-3"></div>
       
-      {/* Funny creatures */}
       <div className="absolute bottom-28 right-20 w-12 h-20 animate-bounce">
         <div className="w-8 h-8 bg-purple-500 rounded-full"></div>
         <div className="w-6 h-12 bg-purple-500 ml-1"></div>
@@ -278,7 +249,6 @@ const RoadTripBackground: React.FC<RoadTripBackgroundProps> = ({
         <div className="w-2 h-6 bg-purple-500 absolute bottom-0 right-0"></div>
       </div>
       
-      {/* Falling food items */}
       {foodItems.map((item) => (
         <div 
           key={item.id}
@@ -298,13 +268,12 @@ const RoadTripBackground: React.FC<RoadTripBackgroundProps> = ({
         </div>
       ))}
       
-      {/* Overlay gradient for time of day */}
       {timeOfDay === 'night' && (
         <div className="absolute inset-0 bg-blue-900 opacity-30 pointer-events-none"></div>
       )}
       
-      {/* CSS for animations */}
-      <style jsx>{`
+      <style>
+        {`
         @keyframes spin {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
@@ -465,7 +434,8 @@ const RoadTripBackground: React.FC<RoadTripBackgroundProps> = ({
           filter: drop-shadow(0 0 15px #ffcc00);
           transform: scale(1.3);
         }
-      `}</style>
+        `}
+      </style>
     </div>
   );
 };
