@@ -56,6 +56,15 @@ export function useAudio(src: string, options: UseAudioOptions = {}) {
     }
   };
 
+  const stop = () => {
+    const audio = audioRef.current;
+    if (audio) {
+      audio.pause();
+      audio.currentTime = 0;
+      setIsPlaying(false);
+    }
+  };
+
   const toggle = () => {
     if (isPlaying) {
       pause();
@@ -67,6 +76,7 @@ export function useAudio(src: string, options: UseAudioOptions = {}) {
   return {
     play,
     pause,
+    stop,
     toggle,
     isPlaying,
     isLoaded,
