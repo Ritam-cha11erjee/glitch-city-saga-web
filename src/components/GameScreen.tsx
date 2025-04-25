@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAudio } from '../hooks/useAudio';
+import { useUserData } from '../hooks/useUserData';
 import GlitchText from './GlitchText';
 import ChoiceButton from './ChoiceButton';
 import GameMenu from './GameMenu';
@@ -9,8 +10,13 @@ import StarshipBackground from './StarshipBackground';
 import RoadTripBackground from './RoadTripBackground';
 import DecisionAnalysis from './DecisionAnalysis';
 import GameTimer from './GameTimer';
-import { Moon, Sun } from 'lucide-react';
+import ExitChapterButton from './ExitChapterButton';
+import UserProfile from './UserProfile';
+import ImmersiveMenuBackground from './ImmersiveMenuBackground';
+import { Moon, Sun, User } from 'lucide-react';
 import { Switch } from './ui/switch';
+import { Button } from './ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import glitchCityData from '../data/storyData';
 import starshipData from '../data/starshipData';
 import roadTripData from '../data/roadTripData';
@@ -37,6 +43,8 @@ const GameScreen: React.FC = () => {
   const [startTime, setStartTime] = useState<number | null>(null);
   const [endTime, setEndTime] = useState<number | null>(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const { userData, updateUserData, recordGameCompletion, recordGameStart } = useUserData();
   const [userEssence, setUserEssence] = useState<{[key: string]: number}>({
     harmony: 0,
     chaos: 0,
@@ -111,6 +119,13 @@ const GameScreen: React.FC = () => {
     };
   }, [gameEnded, storyType]);
 
+  // Update user essence when the local state changes
+  useEffect(() => {
+    if (gameStarted) {
+      updateUserData({ essence: userEssence });
+    }
+  }, [userEssence]);
+
   const handleChoice = async (target: string, choiceText: string, essenceChange?: {[key: string]: number}) => {
     buttonClickSound.play();
     setIsTransitioning(true);
@@ -146,6 +161,7 @@ const GameScreen: React.FC = () => {
     setStartTime(Date.now());
     buttonClickSound.play();
     
+    // Reset local essence for new game
     setUserEssence({
       harmony: 0,
       chaos: 0,
@@ -163,11 +179,22 @@ const GameScreen: React.FC = () => {
       commerce: 0,
       caution: 0
     });
+    
+    // Record game start in user data
+    recordGameStart(type, startLocation);
   };
 
   const handleGameEnd = () => {
     setGameEnded(true);
-    setEndTime(Date.now());
+    const endTimeMs = Date.now();
+    setEndTime(endTimeMs);
+    
+    if (storyType) {
+      // Calculate completion time in seconds
+      const completionTime = Math.round((endTimeMs - (startTime || endTimeMs)) / 1000);
+      recordGameCompletion(storyType, completionTime);
+    }
+    
     if (storyType === 'starship') {
       spaceEngineSound.stop();
     }
@@ -185,6 +212,7 @@ const GameScreen: React.FC = () => {
     setEndTime(null);
     buttonClickSound.play();
     
+    // Reset local essence for new game
     setUserEssence({
       harmony: 0,
       chaos: 0,
@@ -202,6 +230,11 @@ const GameScreen: React.FC = () => {
       commerce: 0,
       caution: 0
     });
+    
+    // Record game start in user data
+    if (storyType) {
+      recordGameStart(storyType, startLocation);
+    }
   };
 
   const handleReturnToMenu = () => {
@@ -218,21 +251,22 @@ const GameScreen: React.FC = () => {
   if (!gameStarted) {
     return (
       <div className={`min-h-screen flex flex-col items-center justify-center p-6 overflow-hidden relative ${darkMode ? 'bg-black' : 'bg-gray-100'}`}>
-        {storyType === 'starship' ? (
-          <StarshipBackground 
-            darkMode={darkMode} 
-            mousePosition={mousePosition} 
-          />
-        ) : storyType === 'roadTrip' ? (
-          <RoadTripBackground 
-            darkMode={darkMode}
-            mousePosition={mousePosition}
-          />
-        ) : (
-          <CityBackground darkMode={darkMode} />
-        )}
+        <ImmersiveMenuBackground 
+          darkMode={darkMode} 
+          mousePosition={mousePosition} 
+        />
         
         <div className="absolute top-4 right-4 flex items-center space-x-2 z-20">
+          <Button 
+            variant="ghost"
+            size="sm"
+            className="bg-black/30 backdrop-blur-sm border border-white/20 hover:bg-black/50 text-white rounded-full p-2 h-10 w-10"
+            onClick={() => setIsProfileOpen(true)}
+          >
+            <User className="h-5 w-5" />
+            <span className="sr-only">User Profile</span>
+          </Button>
+          
           <Sun className="h-4 w-4 text-yellow-500" />
           <Switch 
             checked={darkMode}
@@ -246,6 +280,12 @@ const GameScreen: React.FC = () => {
         </h1>
         
         <GameMenu onStartGame={handleStartGame} />
+        
+        <UserProfile 
+          user={userData} 
+          isOpen={isProfileOpen} 
+          onOpenChange={setIsProfileOpen} 
+        />
       </div>
     );
   }
@@ -256,6 +296,10 @@ const GameScreen: React.FC = () => {
         isTransitioning ? 'opacity-0' : 'opacity-100'
       } ${darkMode ? 'bg-black' : 'bg-black'}`}
     >
+      {gameStarted && (
+        <ExitChapterButton onExit={handleReturnToMenu} />
+      )}
+      
       {storyType === 'starship' ? (
         <StarshipBackground 
           darkMode={darkMode} 
@@ -282,6 +326,16 @@ const GameScreen: React.FC = () => {
       )}
       
       <div className="absolute top-4 right-4 flex items-center space-x-2 z-20">
+        <Button 
+          variant="ghost"
+          size="sm"
+          className="bg-black/30 backdrop-blur-sm border border-white/20 hover:bg-black/50 text-white rounded-full p-2 h-10 w-10"
+          onClick={() => setIsProfileOpen(true)}
+        >
+          <User className="h-5 w-5" />
+          <span className="sr-only">User Profile</span>
+        </Button>
+        
         <Sun className="h-4 w-4 text-yellow-500" />
         <Switch 
           checked={darkMode}
@@ -291,7 +345,7 @@ const GameScreen: React.FC = () => {
       </div>
       
       {startTime && !gameEnded && (
-        <div className="absolute top-4 left-4 z-20">
+        <div className="absolute top-4 left-4 z-20 ml-16">
           <GameTimer startTime={startTime} />
         </div>
       )}
@@ -360,6 +414,12 @@ const GameScreen: React.FC = () => {
           </div>
         )}
       </div>
+      
+      <UserProfile 
+        user={userData} 
+        isOpen={isProfileOpen} 
+        onOpenChange={setIsProfileOpen} 
+      />
     </div>
   );
 };
