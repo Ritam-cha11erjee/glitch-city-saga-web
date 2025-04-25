@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useAudio } from '../hooks/useAudio';
 import { useUserData } from '../hooks/useUserData';
@@ -20,6 +19,7 @@ import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import glitchCityData from '../data/storyData';
 import starshipData from '../data/starshipData';
 import roadTripData from '../data/roadTripData';
+import { UserEssence } from '../types/user';
 
 interface Choice {
   text: string;
@@ -45,7 +45,8 @@ const GameScreen: React.FC = () => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const { userData, updateUserData, recordGameCompletion, recordGameStart } = useUserData();
-  const [userEssence, setUserEssence] = useState<{[key: string]: number}>({
+  
+  const [userEssence, setUserEssence] = useState<UserEssence>({
     harmony: 0,
     chaos: 0,
     energy: 0,
@@ -119,7 +120,6 @@ const GameScreen: React.FC = () => {
     };
   }, [gameEnded, storyType]);
 
-  // Update user essence when the local state changes
   useEffect(() => {
     if (gameStarted) {
       updateUserData({ essence: userEssence });
@@ -161,7 +161,6 @@ const GameScreen: React.FC = () => {
     setStartTime(Date.now());
     buttonClickSound.play();
     
-    // Reset local essence for new game
     setUserEssence({
       harmony: 0,
       chaos: 0,
@@ -180,7 +179,6 @@ const GameScreen: React.FC = () => {
       caution: 0
     });
     
-    // Record game start in user data
     recordGameStart(type, startLocation);
   };
 
@@ -190,7 +188,6 @@ const GameScreen: React.FC = () => {
     setEndTime(endTimeMs);
     
     if (storyType) {
-      // Calculate completion time in seconds
       const completionTime = Math.round((endTimeMs - (startTime || endTimeMs)) / 1000);
       recordGameCompletion(storyType, completionTime);
     }
@@ -212,7 +209,6 @@ const GameScreen: React.FC = () => {
     setEndTime(null);
     buttonClickSound.play();
     
-    // Reset local essence for new game
     setUserEssence({
       harmony: 0,
       chaos: 0,
@@ -231,7 +227,6 @@ const GameScreen: React.FC = () => {
       caution: 0
     });
     
-    // Record game start in user data
     if (storyType) {
       recordGameStart(storyType, startLocation);
     }

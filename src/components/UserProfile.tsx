@@ -100,8 +100,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, isOpen, onOpenChange })
                   >
                     <Progress
                       value={(category.value / 10) * 100}
-                      className="h-2 bg-gray-800"
-                      indicatorClassName={category.color}
+                      className={cn("h-2 bg-gray-800", category.color)}
                     />
                   </motion.div>
                 </div>
@@ -134,5 +133,8 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, isOpen, onOpenChange })
     </Dialog>
   );
 };
+
+// Import the cn utility since we're using it to combine class names
+import { cn } from "@/lib/utils";
 
 export default UserProfile;
