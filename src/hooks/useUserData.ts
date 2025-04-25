@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { User, UserEssence } from '../types/user';
+import { User } from '../types/user';
 
 const DEFAULT_USER: User = {
   name: 'Player',
@@ -53,27 +53,14 @@ export const useUserData = () => {
   }, [userData, loaded]);
 
   const updateUserData = (data: Partial<User>) => {
-    setUserData(prev => {
-      // For essence, we properly merge the values instead of replacing
-      const updatedEssence = { ...prev.essence };
-      
-      if (data.essence) {
-        Object.entries(data.essence).forEach(([key, value]) => {
-          // For each key, we're updating the ongoing average
-          const currentValue = updatedEssence[key] || 0;
-          const chapterCount = prev.chaptersCompleted || 1;
-          
-          // Calculate the new running average for each trait
-          updatedEssence[key] = (currentValue * chapterCount + value) / (chapterCount + 1);
-        });
+    setUserData(prev => ({
+      ...prev,
+      ...data,
+      essence: {
+        ...prev.essence,
+        ...(data.essence || {})
       }
-      
-      return {
-        ...prev,
-        ...data,
-        essence: updatedEssence
-      };
-    });
+    }));
   };
 
   const recordGameCompletion = (storyType: string, completionTime: number) => {

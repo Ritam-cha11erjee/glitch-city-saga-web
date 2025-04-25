@@ -25,24 +25,6 @@ const ImmersiveMenuBackground: React.FC<ImmersiveMenuBackgroundProps> = ({
   const [stars, setStars] = useState<Star[]>([]);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const [mouseHoverStar, setMouseHoverStar] = useState<number | null>(null);
-  const [lastProcessedPosition, setLastProcessedPosition] = useState({ x: 0, y: 0 });
-  const [throttleTimeout, setThrottleTimeout] = useState<NodeJS.Timeout | null>(null);
-  
-  // Process mouse position with throttling to avoid rapid changes
-  useEffect(() => {
-    if (throttleTimeout) return;
-    
-    const timeout = setTimeout(() => {
-      setLastProcessedPosition(mousePosition);
-      setThrottleTimeout(null);
-    }, 100); // Only process mouse movements every 100ms
-    
-    setThrottleTimeout(timeout);
-    
-    return () => {
-      if (timeout) clearTimeout(timeout);
-    };
-  }, [mousePosition]);
   
   useEffect(() => {
     const updateDimensions = () => {
@@ -50,8 +32,8 @@ const ImmersiveMenuBackground: React.FC<ImmersiveMenuBackgroundProps> = ({
         const { width, height } = containerRef.current.getBoundingClientRect();
         setDimensions({ width, height });
         
-        // Generate stars based on dimensions but fewer than before
-        const numberOfStars = Math.floor((width * height) / 15000); // Reduced density
+        // Generate stars based on dimensions
+        const numberOfStars = Math.floor((width * height) / 10000);
         const newStars = Array.from({ length: numberOfStars }, (_, i) => ({
           id: i,
           x: Math.random() * width,
@@ -74,14 +56,14 @@ const ImmersiveMenuBackground: React.FC<ImmersiveMenuBackgroundProps> = ({
     };
   }, []);
   
-  // Check for stars near mouse position using the throttled position
+  // Check for stars near mouse position
   useEffect(() => {
     if (!dimensions.width) return;
     
     const checkHover = () => {
-      const threshold = 100; // Increased hover area
-      const mouseX = lastProcessedPosition.x;
-      const mouseY = lastProcessedPosition.y;
+      const threshold = 80;
+      const mouseX = mousePosition.x;
+      const mouseY = mousePosition.y;
       
       setStars(prevStars => 
         prevStars.map(star => {
@@ -99,154 +81,92 @@ const ImmersiveMenuBackground: React.FC<ImmersiveMenuBackgroundProps> = ({
     };
     
     checkHover();
-  }, [lastProcessedPosition, dimensions]);
+  }, [mousePosition, dimensions]);
   
   return (
     <div 
       ref={containerRef}
       className="absolute inset-0 overflow-hidden bg-gradient-to-b from-navy-900 to-black"
     >
-      {/* Improved Background with Nebula Effect */}
-      <div className="absolute inset-0">
-        <div className="absolute inset-0 bg-gradient-radial from-purple-900/30 via-transparent to-transparent"></div>
-        <div className="absolute inset-0 bg-gradient-radial from-blue-900/20 via-transparent to-transparent" 
-             style={{ top: '30%', left: '70%' }}></div>
-        <div className="absolute inset-0 bg-gradient-radial from-pink-900/20 via-transparent to-transparent"
-             style={{ top: '70%', left: '30%' }}></div>
-        
-        {/* Animated Cosmic Dust */}
-        {Array.from({ length: 5 }).map((_, i) => (
-          <motion.div
-            key={`dust-${i}`}
-            className="absolute rounded-full bg-white/5 blur-xl"
-            animate={{
-              scale: [1, 1.2, 1],
-              opacity: [0.3, 0.6, 0.3],
-            }}
-            transition={{ 
-              duration: 8 + i * 2, 
-              repeat: Infinity,
-              repeatType: "reverse"
-            }}
-            style={{
-              width: `${150 + i * 50}px`,
-              height: `${150 + i * 50}px`,
-              left: `${15 + i * 20}%`,
-              top: `${10 + i * 15}%`,
-            }}
-          />
-        ))}
-      </div>
+      {/* Base Gradient */}
+      <div className="absolute inset-0 bg-gradient-radial from-purple-900/30 via-transparent to-transparent"></div>
       
-      {/* Enhanced Grid Lines - Slower and More Dramatic */}
+      {/* Grid Lines */}
       <div 
-        className="absolute inset-0 bg-[linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px)]"
+        className="absolute inset-0 bg-[linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px)]"
         style={{ 
-          backgroundSize: '60px 60px',
-          transform: `translate(${-lastProcessedPosition.x / 40}px, ${-lastProcessedPosition.y / 40}px)`
+          backgroundSize: '40px 40px',
+          transform: `translate(${-mousePosition.x / 20}px, ${-mousePosition.y / 20}px)`
         }}
       ></div>
       
-      {/* Horizon Line with Glow */}
-      <div className="absolute w-full h-px bottom-1/3 bg-gradient-to-r from-transparent via-neon-cyan/30 to-transparent">
-        <div className="absolute w-full h-2 top-0 blur-md bg-gradient-to-r from-transparent via-neon-cyan/20 to-transparent"></div>
-      </div>
-      
-      {/* Distorted Road Sign - Enhanced with Better Perspective */}
-      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
+      {/* Distorted Road Sign */}
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
         <motion.div
           initial={{ scale: 0.9 }}
           animate={{ 
-            scale: [0.95, 1.02, 0.98, 1.0],
-            rotateY: [-3, 3, -2, 0],
-            rotateX: [2, -2, 3, 0],
+            scale: [0.9, 1, 0.95, 1],
+            rotateY: [-5, 5, -3, 0],
+            rotateX: [3, -3, 5, 0],
           }}
           transition={{ 
-            duration: 8, // Slower animation
+            duration: 6, 
             repeat: Infinity, 
             repeatType: "reverse" 
           }}
           style={{
-            perspective: '1200px',
-            transformStyle: 'preserve-3d',
-            transform: `perspective(1200px) rotateY(${(lastProcessedPosition.x - dimensions.width / 2) / 60}deg) rotateX(${-(lastProcessedPosition.y - dimensions.height / 2) / 60}deg)`,
+            transform: `perspective(1000px) rotateY(${(mousePosition.x - dimensions.width / 2) / 50}deg) rotateX(${-(mousePosition.y - dimensions.height / 2) / 50}deg)`,
           }}
+          className="w-48 h-36 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-md flex items-center justify-center shadow-xl"
         >
-          {/* Multi-layered sign for depth effect */}
-          <div className="w-48 h-36 bg-gradient-to-br from-yellow-600 to-yellow-400 rounded-md flex items-center justify-center shadow-xl relative overflow-hidden">
-            {/* Metallic reflection effect */}
-            <motion.div 
-              className="absolute inset-0 bg-gradient-to-br from-yellow-300/40 via-transparent to-yellow-600/30"
-              animate={{ 
-                opacity: [0.6, 0.8, 0.5, 0.7],
-                backgroundPosition: ['0% 0%', '100% 100%', '0% 100%', '100% 0%']
-              }}
-              transition={{ duration: 10, repeat: Infinity }}
-            />
-            
-            {/* Scratches on the sign */}
-            <div className="absolute inset-0 opacity-20" style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M10 10L90 90M30 10L10 30M90 10L10 90' stroke='%23ffffff' stroke-width='0.5'/%3E%3C/svg%3E")`,
-              backgroundSize: '100px 100px'
-            }}/>
-            
-            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent rounded-md"></div>
-            
-            {/* Glitchy text effect */}
-            <motion.div 
-              animate={{ 
-                textShadow: ['0 0 8px rgba(255,255,255,0.7)', '0 0 12px rgba(255,0,255,0.9)', '0 0 8px rgba(0,0,255,0.7)'],
-                x: [0, -2, 1, 0],
-                y: [0, 1, -1, 0]
-              }}
-              transition={{ duration: 3.5, repeat: Infinity, repeatType: "reverse" }}
-              className="font-glitch text-white text-2xl transform rotate-3 p-4 text-center z-10"
-            >
-              REALITY
-              <br />
-              DETOUR
-            </motion.div>
-            
-            {/* Additional sign elements */}
-            <div className="absolute -left-1 -right-1 top-0 h-4 bg-yellow-700"></div>
-            <div className="absolute -left-1 -right-1 bottom-0 h-4 bg-yellow-700"></div>
-          </div>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent rounded-md"></div>
+          <motion.div 
+            animate={{ 
+              textShadow: ['0 0 8px rgba(255,0,0,0.7)', '0 0 12px rgba(255,0,255,0.9)', '0 0 8px rgba(0,0,255,0.7)']
+            }}
+            transition={{ duration: 2, repeat: Infinity }}
+            className="font-glitch text-white text-2xl transform rotate-3 p-4 text-center"
+          >
+            REALITY
+            <br />
+            DETOUR
+          </motion.div>
         </motion.div>
       </div>
       
-      {/* Moving Lines - Smoothed and slowed down */}
-      {Array.from({ length: 8 }).map((_, index) => (
+      {/* Moving Lines */}
+      {Array.from({ length: 10 }).map((_, index) => (
         <motion.div
           key={`line-${index}`}
           className="absolute h-0.5 bg-gradient-to-r from-transparent via-neon-cyan to-transparent opacity-70"
-          initial={{ width: 0, left: "50%", top: `${15 + index * 9}%` }}
+          initial={{ width: 0, left: "50%", top: `${10 + index * 8}%` }}
           animate={{ 
-            width: ["0%", "70%", "0%"],
-            left: ["50%", "15%", "50%"],
-            opacity: [0, 0.6, 0],
+            width: ["0%", "80%", "0%"],
+            left: ["50%", "10%", "50%"],
+            opacity: [0, 0.8, 0],
           }}
           transition={{ 
-            duration: 5 + index * 0.8, // Slower movement
+            duration: 3 + index * 0.4, 
             repeat: Infinity, 
             repeatType: "loop",
-            delay: index * 0.5,
+            delay: index * 0.3,
             ease: "easeInOut"
           }}
         />
       ))}
       
-      {/* Stars - Reduced animation speed */}
+      {/* Stars */}
       {stars.map(star => (
         <motion.div
           key={`star-${star.id}`}
           className="absolute rounded-full bg-white"
           animate={{
-            opacity: star.hovered ? [0.6, 0.9, 0.7, 0.9] : star.opacity,
-            scale: star.hovered ? [1, 1.3, 1.1, 1.4] : 1,
+            opacity: star.hovered ? [0.6, 1, 0.8, 1] : star.opacity,
+            scale: star.hovered ? [1, 1.5, 1.2, 1.8] : 1,
             filter: star.hovered ? "brightness(1.5) blur(1px)" : "brightness(1) blur(0px)"
           }}
           transition={{ 
-            duration: star.hovered ? 3 : 0, // Slower pulse
+            duration: star.hovered ? 1.5 : 0,
             repeat: star.hovered ? Infinity : 0,
             repeatType: "reverse"
           }}
@@ -259,8 +179,8 @@ const ImmersiveMenuBackground: React.FC<ImmersiveMenuBackgroundProps> = ({
         />
       ))}
       
-      {/* Tiny Cars - Slowed down movement */}
-      {Array.from({ length: 4 }).map((_, index) => (
+      {/* Tiny Cars */}
+      {Array.from({ length: 6 }).map((_, index) => (
         <motion.div
           key={`car-${index}`}
           className="absolute w-6 h-3 bg-neon-magenta rounded-sm"
@@ -282,7 +202,7 @@ const ImmersiveMenuBackground: React.FC<ImmersiveMenuBackgroundProps> = ({
             rotate: [0, 90, 180, 270, 360],
           }}
           transition={{
-            duration: 20 + index * 4, // Much slower movement
+            duration: 10 + index * 2,
             repeat: Infinity,
             repeatType: "loop",
           }}
@@ -292,44 +212,8 @@ const ImmersiveMenuBackground: React.FC<ImmersiveMenuBackgroundProps> = ({
         </motion.div>
       ))}
       
-      {/* Floating Particles - New Addition */}
-      {Array.from({ length: 15 }).map((_, i) => (
-        <motion.div
-          key={`particle-${i}`}
-          className="absolute rounded-full bg-white/50"
-          initial={{ 
-            x: Math.random() * dimensions.width, 
-            y: Math.random() * dimensions.height,
-            scale: Math.random() * 0.5 + 0.1,
-          }}
-          animate={{
-            x: [
-              Math.random() * dimensions.width, 
-              Math.random() * dimensions.width, 
-              Math.random() * dimensions.width
-            ],
-            y: [
-              Math.random() * dimensions.height, 
-              Math.random() * dimensions.height, 
-              Math.random() * dimensions.height
-            ],
-            opacity: [0.3, 0.7, 0.3],
-          }}
-          transition={{
-            duration: 15 + i * 2,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-          style={{
-            width: `${2 + Math.random() * 4}px`,
-            height: `${2 + Math.random() * 4}px`,
-            filter: `blur(${Math.random()}px)`
-          }}
-        />
-      ))}
-      
-      {/* Birds - These respond to mousemove but with dampened effect */}
-      {Array.from({ length: 3 }).map((_, index) => (
+      {/* Birds */}
+      {Array.from({ length: 4 }).map((_, index) => (
         <motion.div
           key={`bird-${index}`}
           className="absolute"
@@ -338,14 +222,14 @@ const ImmersiveMenuBackground: React.FC<ImmersiveMenuBackgroundProps> = ({
             top: Math.random() * dimensions.height * 0.6
           }}
           animate={{
-            left: lastProcessedPosition.x + Math.sin(Date.now() / 2000 + index) * 150,
-            top: lastProcessedPosition.y + Math.cos(Date.now() / 2000 + index) * 150,
-            rotate: [0, 5, -5, 0],
+            left: mousePosition.x + Math.sin(Date.now() / 1000 + index) * 150,
+            top: mousePosition.y + Math.cos(Date.now() / 1000 + index) * 150,
+            rotate: [0, 10, -10, 0],
           }}
           transition={{
-            left: { duration: 3 },  // Slower tracking
-            top: { duration: 3 },   // Slower tracking
-            rotate: { duration: 1, repeat: Infinity }
+            left: { duration: 2 },
+            top: { duration: 2 },
+            rotate: { duration: 0.5, repeat: Infinity }
           }}
         >
           <svg width="20" height="15" viewBox="0 0 20 15" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -354,27 +238,6 @@ const ImmersiveMenuBackground: React.FC<ImmersiveMenuBackgroundProps> = ({
           </svg>
         </motion.div>
       ))}
-      
-      {/* Cyberspace Ripple Effect - New Feature */}
-      <motion.div
-        className="absolute rounded-full border border-neon-cyan/20"
-        style={{
-          left: lastProcessedPosition.x,
-          top: lastProcessedPosition.y,
-          translateX: '-50%',
-          translateY: '-50%',
-        }}
-        animate={{
-          width: [0, 200],
-          height: [0, 200],
-          opacity: [0.8, 0],
-        }}
-        transition={{
-          duration: 2,
-          repeat: Infinity,
-          repeatDelay: 0.5
-        }}
-      />
     </div>
   );
 };

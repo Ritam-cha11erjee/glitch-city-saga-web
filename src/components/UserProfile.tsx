@@ -12,7 +12,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
 import { motion } from "framer-motion";
 import { User } from "@/types/user";
-import { cn } from "@/lib/utils";
 
 interface UserProfileProps {
   user: User;
@@ -21,9 +20,6 @@ interface UserProfileProps {
 }
 
 const UserProfile: React.FC<UserProfileProps> = ({ user, isOpen, onOpenChange }) => {
-  // Use either the user's avatar or our default funny avatar
-  const avatarSrc = user.avatar || "/funny-avatar.png";
-  
   const essenceCategories = [
     { name: "Harmony", value: user.essence.harmony || 0, color: "bg-blue-500" },
     { name: "Risk-Taking", value: user.essence.risk || 0, color: "bg-red-500" },
@@ -49,7 +45,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, isOpen, onOpenChange })
             transition={{ duration: 0.5 }}
           >
             <Avatar className="h-24 w-24 border-2 border-neon-cyan">
-              <AvatarImage src={avatarSrc} alt="Profile" />
+              <AvatarImage src={user.avatar || "/default-avatar.png"} alt="Profile" />
               <AvatarFallback className="bg-navy-800 text-white text-xl">
                 {user.name ? user.name.charAt(0).toUpperCase() : "?"}
               </AvatarFallback>
@@ -137,5 +133,8 @@ const UserProfile: React.FC<UserProfileProps> = ({ user, isOpen, onOpenChange })
     </Dialog>
   );
 };
+
+// Import the cn utility since we're using it to combine class names
+import { cn } from "@/lib/utils";
 
 export default UserProfile;
