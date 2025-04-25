@@ -1,5 +1,5 @@
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 import ChoiceButton from './ChoiceButton';
 import {
   Chart as ChartJS,
@@ -105,7 +105,7 @@ const DecisionAnalysis: React.FC<DecisionAnalysisProps> = ({
       },
     },
     responsive: true,
-    maintainAspectRatio: false,
+    maintainAspectRatio: true,
   };
 
   return (
@@ -132,9 +132,11 @@ const DecisionAnalysis: React.FC<DecisionAnalysisProps> = ({
           </div>
         </div>
         
-        <div className="h-64 mt-4">
-          <Bar data={chartData} options={chartOptions} />
-        </div>
+        <AspectRatio ratio={16/9} className="mt-4 bg-primary/5 rounded-lg p-2">
+          <div className="w-full h-full">
+            <Bar data={chartData} options={chartOptions} />
+          </div>
+        </AspectRatio>
         
         <div className="space-y-2">
           <h3 className="text-lg font-semibold">Key Decisions</h3>
@@ -166,7 +168,6 @@ const DecisionAnalysis: React.FC<DecisionAnalysisProps> = ({
   );
 };
 
-// Helper functions for calculating scores
 function calculateRiskScore(decisions: string[], userEssence?: {[key: string]: number}): number {
   if (userEssence) {
     const riskValue = (userEssence.risk || 0) + (userEssence.chaos || 0);
@@ -269,7 +270,6 @@ function calculateExplorationScore(decisions: string[], userEssence?: {[key: str
   return Math.min(10, Math.max(1, score)); // Ensure score is between 1 and 10
 }
 
-// Assessment text generators
 function getRiskAssessment(score: number): string {
   if (score >= 9) return "Extremely Bold";
   if (score >= 7) return "Risk Taker";
