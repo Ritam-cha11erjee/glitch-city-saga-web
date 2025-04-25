@@ -114,10 +114,10 @@ const RoadTripBackground: React.FC<RoadTripBackgroundProps> = ({
         style={{ left: `calc(50% + ${carPosition}px)` }}
       >
         <div className="relative">
-          <div className="w-80 h-40 bg-transparent">
+          <div className="w-80 h-32 bg-transparent">
             {/* SUV body - 2-box design */}
-            <div className="absolute top-4 left-12 w-48 h-14 bg-white rounded-t-lg"></div>
-            <div className="absolute bottom-0 left-0 w-full h-20 bg-white rounded-lg"></div>
+            <div className="absolute top-4 left-20 w-48 h-14 bg-white rounded-t-lg"></div>
+            <div className="absolute bottom-0 left-0 w-full h-18 bg-white rounded-lg"></div>
             
             {/* Windows */}
             <div className="absolute top-6 left-16 w-36 h-10 bg-blue-200 border border-gray-300"></div>
