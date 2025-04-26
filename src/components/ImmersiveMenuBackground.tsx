@@ -1,4 +1,3 @@
-
 import React, { useRef, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 
@@ -31,7 +30,6 @@ const ImmersiveMenuBackground: React.FC<ImmersiveMenuBackgroundProps> = ({
         const { width, height } = containerRef.current.getBoundingClientRect();
         setDimensions({ width, height });
         
-        // Generate stars based on dimensions
         const numberOfStars = Math.floor((width * height) / 10000);
         const newStars = Array.from({ length: numberOfStars }, (_, i) => ({
           id: i,
@@ -55,7 +53,6 @@ const ImmersiveMenuBackground: React.FC<ImmersiveMenuBackgroundProps> = ({
     };
   }, []);
   
-  // Smoothed mouse position effect for stars
   useEffect(() => {
     if (!dimensions.width) return;
     
@@ -79,7 +76,6 @@ const ImmersiveMenuBackground: React.FC<ImmersiveMenuBackgroundProps> = ({
       );
     };
     
-    // Throttle the hover check to smooth out animations
     const timeoutId = setTimeout(checkHover, 50);
     return () => clearTimeout(timeoutId);
   }, [mousePosition, dimensions]);
@@ -89,23 +85,12 @@ const ImmersiveMenuBackground: React.FC<ImmersiveMenuBackgroundProps> = ({
       ref={containerRef}
       className={`absolute inset-0 overflow-hidden ${darkMode ? 'bg-gradient-to-b from-navy-900 to-black' : 'bg-gradient-to-b from-blue-100 to-white'}`}
     >
-      {/* Base Gradient */}
       <div className={`absolute inset-0 bg-gradient-radial ${darkMode ? 'from-purple-900/30' : 'from-blue-300/30'} via-transparent to-transparent`}></div>
       
-      {/* Grid Lines */}
-      <div 
-        className={`absolute inset-0 ${darkMode ? 'bg-[linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px)]' : 'bg-[linear-gradient(90deg,rgba(0,0,0,0.05)_1px,transparent_1px),linear-gradient(rgba(0,0,0,0.05)_1px,transparent_1px)]'}`}
-        style={{ 
-          backgroundSize: '40px 40px',
-          transform: `translate(${-mousePosition.x / 40}px, ${-mousePosition.y / 40}px)`
-        }}
-      ></div>
-      
-      {/* Moving Light Beams */}
-      {Array.from({ length: 5 }).map((_, index) => (
+      {Array.from({ length: 8 }).map((_, index) => (
         <motion.div
           key={`beam-${index}`}
-          className={`absolute h-[150vh] w-[20px] ${darkMode ? 'bg-gradient-to-b from-neon-cyan/5 via-neon-cyan/10 to-transparent' : 'bg-gradient-to-b from-blue-400/5 via-blue-400/10 to-transparent'}`}
+          className={`absolute h-[150vh] w-[30px] ${darkMode ? 'bg-gradient-to-b from-neon-cyan/5 via-neon-cyan/10 to-transparent' : 'bg-gradient-to-b from-blue-400/5 via-blue-400/10 to-transparent'}`}
           animate={{
             left: ['0%', '100%'],
             rotate: [15, 25, 15],
@@ -123,7 +108,6 @@ const ImmersiveMenuBackground: React.FC<ImmersiveMenuBackgroundProps> = ({
         />
       ))}
       
-      {/* Stars */}
       {stars.map(star => (
         <motion.div
           key={`star-${star.id}`}
@@ -146,8 +130,7 @@ const ImmersiveMenuBackground: React.FC<ImmersiveMenuBackgroundProps> = ({
         />
       ))}
       
-      {/* Floating Light Orbs */}
-      {Array.from({ length: 3 }).map((_, index) => (
+      {Array.from({ length: 6 }).map((_, index) => (
         <motion.div
           key={`orb-${index}`}
           className={`absolute w-32 h-32 rounded-full ${darkMode ? 'bg-gradient-radial from-neon-cyan/20 to-transparent' : 'bg-gradient-radial from-blue-400/20 to-transparent'}`}

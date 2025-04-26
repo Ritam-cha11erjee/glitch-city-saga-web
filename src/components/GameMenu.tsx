@@ -24,10 +24,14 @@ const GameMenu: React.FC<GameMenuProps> = ({ onStartGame }) => {
             <Card className="bg-black/50 backdrop-blur-sm border border-neon-cyan/30 rounded-lg overflow-hidden h-full">
               <div className="h-40 relative overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-purple-900 to-black">
-                  <div className="absolute inset-0 bg-[url('/glitch-background.png')] bg-cover bg-center opacity-50" />
+                  <div 
+                    className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBmaWxsPSIjMDAwIi8+PHJlY3Qgd2lkdGg9IjIiIGhlaWdodD0iMiIgeD0iMCIgeT0iMCIgZmlsbD0iIzMzQzNGMCIvPjwvc3ZnPg==')] 
+                    bg-repeat opacity-30 animate-pulse-slow"
+                    style={{ backgroundSize: '20px 20px' }}
+                  />
                   <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="text-neon-cyan text-6xl font-bold opacity-20">2077</div>
+                    <div className="text-neon-cyan text-6xl font-bold opacity-20 animate-glitch">2077</div>
                   </div>
                 </div>
               </div>
