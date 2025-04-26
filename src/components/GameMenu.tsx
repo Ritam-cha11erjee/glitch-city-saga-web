@@ -1,4 +1,3 @@
-
 import {
   Carousel,
   CarouselContent,
@@ -7,7 +6,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { Button } from "./ui/button";
-import { Car, Play, Rocket } from "lucide-react";
+import { Car, Rocket, Zap } from "lucide-react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
 import GlitchText from "./GlitchText";
 
@@ -24,61 +23,11 @@ const GameMenu: React.FC<GameMenuProps> = ({ onStartGame }) => {
           <CarouselItem className="basis-full">
             <Card className="bg-black/50 backdrop-blur-sm border border-neon-cyan/30 rounded-lg overflow-hidden h-full">
               <div className="h-40 relative overflow-hidden">
-                {/* New Glitch City Image */}
                 <div className="absolute inset-0 bg-gradient-to-br from-purple-900 to-black">
+                  <div className="absolute inset-0 bg-[url('/glitch-background.png')] bg-cover bg-center opacity-50" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
                   <div className="absolute inset-0 flex items-center justify-center">
-                    {/* Stylized City Skyline */}
-                    <div className="relative w-full h-full">
-                      {/* Buildings */}
-                      <div className="absolute bottom-0 left-0 right-0 flex justify-between items-end h-full">
-                        {/* Buildings with glitching effect */}
-                        {[...Array(12)].map((_, i) => (
-                          <div 
-                            key={i}
-                            className="bg-neon-cyan/20 border-t border-neon-cyan w-6 md:w-8"
-                            style={{
-                              height: `${15 + Math.random() * 70}%`,
-                              animation: `glitch ${0.5 + Math.random() * 2}s ease-in-out ${Math.random() * 1}s infinite alternate`,
-                              boxShadow: '0 0 10px rgba(0, 255, 255, 0.5)'
-                            }}
-                          >
-                            <div className="h-full w-full relative">
-                              {/* Windows */}
-                              {[...Array(Math.floor(Math.random() * 8 + 2))].map((_, j) => (
-                                <div 
-                                  key={j}
-                                  className="absolute w-2 h-2 bg-neon-yellow/70"
-                                  style={{
-                                    left: `${25 + Math.random() * 50}%`,
-                                    top: `${10 + j * 20 + Math.random() * 5}%`,
-                                    opacity: Math.random() > 0.4 ? 1 : 0
-                                  }}
-                                ></div>
-                              ))}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                      
-                      {/* Grid overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-transparent to-black/70"></div>
-                      <div className="absolute inset-0 bg-cyberpunk-grid bg-[length:20px_20px] opacity-40"></div>
-                      
-                      {/* Glitch Lines */}
-                      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                        {[...Array(3)].map((_, i) => (
-                          <div 
-                            key={i}
-                            className="absolute h-[1px] w-full bg-neon-cyan opacity-70"
-                            style={{
-                              top: `${30 + i * 25}%`,
-                              animation: `glitch ${0.2 + i * 0.1}s ease-in-out infinite`,
-                              boxShadow: '0 0 8px rgba(0, 255, 255, 1)'
-                            }}
-                          ></div>
-                        ))}
-                      </div>
-                    </div>
+                    <div className="text-neon-cyan text-6xl font-bold opacity-20">2077</div>
                   </div>
                 </div>
               </div>
@@ -96,7 +45,7 @@ const GameMenu: React.FC<GameMenuProps> = ({ onStartGame }) => {
                   onClick={() => onStartGame('glitchCity')}
                   className="bg-neon-cyan/20 border border-neon-cyan text-neon-cyan hover:bg-neon-cyan/30"
                 >
-                  <Play className="w-4 h-4 mr-2" />
+                  <Zap className="w-4 h-4 mr-2" />
                   Play Now
                 </Button>
               </CardFooter>
