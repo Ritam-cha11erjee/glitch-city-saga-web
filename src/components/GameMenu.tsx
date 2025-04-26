@@ -18,6 +18,16 @@ interface GameMenuProps {
 const GameMenu: React.FC<GameMenuProps> = ({ onStartGame }) => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
+  const [buildingHeights, setBuildingHeights] = useState<number[]>([]);
+  const [glitchSpeeds, setGlitchSpeeds] = useState<number[]>([]);
+  const animationFrameRef = useRef<number>();
+
+  // Initialize building heights
+  useEffect(() => {
+    const initialHeights = Array(12).fill(0).map(() => 15 + Math.random() * 70);
+    setBuildingHeights(initialHeights);
+    setGlitchSpeeds(Array(12).fill(0).map(() => 0.5 + Math.random() * 2));
+  }, []);
 
   const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
     if (containerRef.current) {
@@ -28,28 +38,79 @@ const GameMenu: React.FC<GameMenuProps> = ({ onStartGame }) => {
     }
   };
 
-  useEffect(() => {
-    const updatePosition = (event: MouseEvent) => {
-        if (containerRef.current) {
-          const rect = containerRef.current.getBoundingClientRect();
-          const x = event.clientX - rect.left;
-          const y = event.clientY - rect.top;
-          setMousePosition({ x, y });
-        }
-      };
+    // Debounce function
+    const debounce = (func: (...args: any[]) => void, delay: number) => {
+        let timeoutId: NodeJS.Timeout | null;
+        return (...args: any[]) => {
+            if (timeoutId) {
+                clearTimeout(timeoutId);
+            }
+            timeoutId = setTimeout(() => {
+                func(...args);
+                timeoutId = null;
+            }, delay);
+        };
+    };
 
-    window.addEventListener('mousemove', updatePosition);
+  const updateBuildings = () => {
+        if (!containerRef.current) return;
+
+        const newHeights = Array(12).fill(0);
+        const newSpeeds = Array(12).fill(0);
+
+        for (let i = 0; i < 12; i++) {
+            const buildingX = i * 30 + 50; // Approximate horizontal position
+            const distance = Math.sqrt(
+                (mousePosition.x - buildingX) ** 2 + (mousePosition.y - 100) ** 2
+            );
+            const influence = Math.max(0, 1 - distance / 300);
+            const targetHeight = 15 + Math.random() * 70 + influence * 30;
+            const targetSpeed = 0.5 + Math.random() * 2 * (1 + influence * 0.5);
+
+            // Smooth transition using easing
+            newHeights[i] =  targetHeight;
+            newSpeeds[i] = targetSpeed;
+        }
+
+        setBuildingHeights(newHeights);
+        setGlitchSpeeds(newSpeeds);
+
+        animationFrameRef.current = requestAnimationFrame(updateBuildings);
+    };
+
+    // Use the debounced function
+    const debouncedMouseMove = debounce(handleMouseMove, 50); // 50ms delay
+
+    useEffect(() => {
+        if (containerRef.current) {
+            containerRef.current.addEventListener('mousemove', debouncedMouseMove);
+
+            return () => {
+                if (containerRef.current) {
+                    containerRef.current.removeEventListener('mousemove', debouncedMouseMove);
+                }
+                if (animationFrameRef.current) {
+                  cancelAnimationFrame(animationFrameRef.current);
+                }
+            };
+        }
+    }, [debouncedMouseMove]);
+
+  useEffect(() => {
+    updateBuildings();
 
     return () => {
-      window.removeEventListener('mousemove', updatePosition);
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
     };
-  }, []);
+  }, [mousePosition]);
+
 
   return (
     <div
       ref={containerRef}
       className="w-full max-w-4xl mx-auto p-6"
-      onMouseMove={handleMouseMove} // Attach mousemove to the main container
       style={{ cursor: 'none' }}
     >
       <Carousel className="w-full">
@@ -65,61 +126,40 @@ const GameMenu: React.FC<GameMenuProps> = ({ onStartGame }) => {
                     <div className="relative w-full h-full">
                       {/* Buildings */}
                       <div className="absolute bottom-0 left-0 right-0 flex justify-between items-end h-full">
-                        {[...Array(12)].map((_, i) => {
-                          // Calculate dynamic height and glitch based on mouse position
-                          const buildingHeight = 15 + Math.random() * 70;
-                          const glitchIntensity = Math.max(
-                            0,
-                            1 -
-                              Math.sqrt(
-                                (mousePosition.x - (i * 30 + 50)) ** 2 +
-                                  (mousePosition.y - 100) ** 2
-                              ) /
-                                300
-                          ); // Adjust 300 for range
-                          const dynamicHeight =
-                            buildingHeight + glitchIntensity * 30; // Increase height
-                          const glitchSpeed =
-                            0.5 + Math.random() * 2 * (1 + glitchIntensity * 0.5); // Adjust speed
-
-                          return (
-                            <div
-                              key={i}
-                              className="bg-neon-cyan/20 border-t border-neon-cyan w-6 md:w-8"
-                              style={{
-                                height: `${dynamicHeight}%`,
-                                animation: `glitch ${glitchSpeed}s ease-in-out ${Math.random() * 1}s infinite alternate`,
-                                boxShadow: '0 0 10px rgba(0, 255, 255, 0.5)',
-                              }}
-                            >
-                              <div className="h-full w-full relative">
-                                {/* Windows */}
-                                {[
-                                  ...Array(
-                                    Math.floor(Math.random() * 8 + 2)
-                                  ),
-                                ].map((_, j) => {
-                                  const windowOpacity =
-                                    Math.random() >
-                                    0.4 * (1 - glitchIntensity * 0.3)
-                                      ? 1
-                                      : 0;
-                                  return (
-                                    <div
-                                      key={j}
-                                      className="absolute w-2 h-2 bg-neon-yellow/70"
-                                      style={{
-                                        left: `${25 + Math.random() * 50}%`,
-                                        top: `${10 + j * 20 + Math.random() * 5}%`,
-                                        opacity: windowOpacity,
-                                      }}
-                                    ></div>
-                                  );
-                                })}
-                              </div>
+                        {buildingHeights.map((height, i) => (
+                          <div
+                            key={i}
+                            className="bg-neon-cyan/20 border-t border-neon-cyan w-6 md:w-8"
+                            style={{
+                              height: `${height}%`,
+                              animation: `glitch ${glitchSpeeds[i]}s ease-in-out ${Math.random() * 1}s infinite alternate`,
+                              boxShadow: '0 0 10px rgba(0, 255, 255, 0.5)',
+                            }}
+                          >
+                            <div className="h-full w-full relative">
+                              {/* Windows */}
+                              {[
+                                ...Array(
+                                  Math.floor(Math.random() * 8 + 2)
+                                ),
+                              ].map((_, j) => {
+                                const windowOpacity =
+                                  Math.random() > 0.4 ? 1 : 0;
+                                return (
+                                  <div
+                                    key={j}
+                                    className="absolute w-2 h-2 bg-neon-yellow/70"
+                                    style={{
+                                      left: `${25 + Math.random() * 50}%`,
+                                      top: `${10 + j * 20 + Math.random() * 5}%`,
+                                      opacity: windowOpacity,
+                                    }}
+                                  ></div>
+                                );
+                              })}
                             </div>
-                          );
-                        })}
+                          </div>
+                        ))}
                       </div>
 
                       {/* Grid overlay */}
