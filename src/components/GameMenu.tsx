@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import {
   Carousel,
@@ -7,7 +8,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { Button } from "./ui/button";
-import { Car, Play, Rocket } from "lucide-react";
+import { Car, Play, Rocket, Zap } from "lucide-react";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./ui/card";
 import GlitchText from "./GlitchText";
 
@@ -17,16 +18,24 @@ interface GameMenuProps {
 
 const GameMenu: React.FC<GameMenuProps> = ({ onStartGame }) => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [smoothMousePosition, setSmoothMousePosition] = useState({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
   const [buildingHeights, setBuildingHeights] = useState<number[]>([]);
   const [glitchSpeeds, setGlitchSpeeds] = useState<number[]>([]);
   const animationFrameRef = useRef<number>();
+  const lastUpdateTimeRef = useRef<number>(0);
 
   // Initialize building heights
   useEffect(() => {
     const initialHeights = Array(12).fill(0).map(() => 15 + Math.random() * 70);
     setBuildingHeights(initialHeights);
     setGlitchSpeeds(Array(12).fill(0).map(() => 0.5 + Math.random() * 2));
+    
+    // Initialize smooth mouse position to center if available
+    if (containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect();
+      setSmoothMousePosition({ x: rect.width / 2, y: rect.height / 2 });
+    }
   }, []);
 
   const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -38,63 +47,69 @@ const GameMenu: React.FC<GameMenuProps> = ({ onStartGame }) => {
     }
   };
 
-    // Debounce function
-    const debounce = (func: (...args: any[]) => void, delay: number) => {
-        let timeoutId: NodeJS.Timeout | null;
-        return (...args: any[]) => {
-            if (timeoutId) {
-                clearTimeout(timeoutId);
-            }
-            timeoutId = setTimeout(() => {
-                func(...args);
-                timeoutId = null;
-            }, delay);
-        };
+  // Smoothly track mouse movement with easing
+  useEffect(() => {
+    const smoothFactor = 0.1; // Lower value = smoother transition
+    
+    const smoothMouseMove = () => {
+      // Calculate difference
+      const dx = mousePosition.x - smoothMousePosition.x;
+      const dy = mousePosition.y - smoothMousePosition.y;
+      
+      // Apply easing
+      setSmoothMousePosition(prev => ({
+        x: prev.x + dx * smoothFactor,
+        y: prev.y + dy * smoothFactor
+      }));
+      
+      animationFrameRef.current = requestAnimationFrame(smoothMouseMove);
     };
+    
+    animationFrameRef.current = requestAnimationFrame(smoothMouseMove);
+    
+    return () => {
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
+    };
+  }, [mousePosition]);
 
   const updateBuildings = () => {
-        if (!containerRef.current) return;
+    const now = Date.now();
+    // Only update every 300ms to reduce jitter
+    if (now - lastUpdateTimeRef.current < 300) {
+      animationFrameRef.current = requestAnimationFrame(updateBuildings);
+      return;
+    }
+    
+    lastUpdateTimeRef.current = now;
+    
+    if (!containerRef.current) return;
 
-        const newHeights = Array(12).fill(0);
-        const newSpeeds = Array(12).fill(0);
+    const newHeights = [...buildingHeights];
+    const newSpeeds = [...glitchSpeeds];
 
-        for (let i = 0; i < 12; i++) {
-            const buildingX = i * 30 + 50; // Approximate horizontal position
-            const distance = Math.sqrt(
-                (mousePosition.x - buildingX) ** 2 + (mousePosition.y - 100) ** 2
-            );
-            const influence = Math.max(0, 1 - distance / 300);
-            const targetHeight = 15 + Math.random() * 70 + influence * 30;
-            const targetSpeed = 0.5 + Math.random() * 2 * (1 + influence * 0.5);
+    for (let i = 0; i < 12; i++) {
+      const buildingX = i * 30 + 50; // Approximate horizontal position
+      const distance = Math.sqrt(
+        (smoothMousePosition.x - buildingX) ** 2 + (smoothMousePosition.y - 100) ** 2
+      );
+      const influence = Math.max(0, 1 - distance / 300);
+      
+      // Smoother transitions for height and speed
+      const targetHeight = 15 + Math.random() * 70 + influence * 30;
+      const targetSpeed = 0.5 + Math.random() * 2 * (1 + influence * 0.5);
+      
+      // Apply gradual easing instead of instant change
+      newHeights[i] = newHeights[i] * 0.9 + targetHeight * 0.1;
+      newSpeeds[i] = newSpeeds[i] * 0.9 + targetSpeed * 0.1;
+    }
 
-            // Smooth transition using easing
-            newHeights[i] =  targetHeight;
-            newSpeeds[i] = targetSpeed;
-        }
+    setBuildingHeights(newHeights);
+    setGlitchSpeeds(newSpeeds);
 
-        setBuildingHeights(newHeights);
-        setGlitchSpeeds(newSpeeds);
-
-        animationFrameRef.current = requestAnimationFrame(updateBuildings);
-    };
-
-    // Use the debounced function
-    const debouncedMouseMove = debounce(handleMouseMove, 50); // 50ms delay
-
-    useEffect(() => {
-        if (containerRef.current) {
-            containerRef.current.addEventListener('mousemove', debouncedMouseMove);
-
-            return () => {
-                if (containerRef.current) {
-                    containerRef.current.removeEventListener('mousemove', debouncedMouseMove);
-                }
-                if (animationFrameRef.current) {
-                  cancelAnimationFrame(animationFrameRef.current);
-                }
-            };
-        }
-    }, [debouncedMouseMove]);
+    animationFrameRef.current = requestAnimationFrame(updateBuildings);
+  };
 
   useEffect(() => {
     updateBuildings();
@@ -104,14 +119,14 @@ const GameMenu: React.FC<GameMenuProps> = ({ onStartGame }) => {
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [mousePosition]);
-
+  }, [smoothMousePosition]);
 
   return (
     <div
       ref={containerRef}
       className="w-full max-w-4xl mx-auto p-6"
       style={{ cursor: 'none' }}
+      onMouseMove={handleMouseMove}
     >
       <Carousel className="w-full">
         <CarouselContent>
@@ -134,6 +149,7 @@ const GameMenu: React.FC<GameMenuProps> = ({ onStartGame }) => {
                               height: `${height}%`,
                               animation: `glitch ${glitchSpeeds[i]}s ease-in-out ${Math.random() * 1}s infinite alternate`,
                               boxShadow: '0 0 10px rgba(0, 255, 255, 0.5)',
+                              transition: 'height 0.5s ease-out', // Add smooth transition
                             }}
                           >
                             <div className="h-full w-full relative">
@@ -204,7 +220,7 @@ const GameMenu: React.FC<GameMenuProps> = ({ onStartGame }) => {
                   onClick={() => onStartGame('glitchCity')}
                   className="bg-neon-cyan/20 border border-neon-cyan text-neon-cyan hover:bg-neon-cyan/30"
                 >
-                  <Play className="w-4 h-4 mr-2" />
+                  <Zap className="w-4 h-4 mr-2" />
                   Play Now
                 </Button>
               </CardFooter>
