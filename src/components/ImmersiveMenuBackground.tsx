@@ -1,5 +1,5 @@
 
-import React, { useRef, useEffect, useState, useCallback } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 
 interface ImmersiveMenuBackgroundProps {
@@ -24,11 +24,8 @@ const ImmersiveMenuBackground: React.FC<ImmersiveMenuBackgroundProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const [stars, setStars] = useState<Star[]>([]);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
-  const [smoothMousePosition, setSmoothMousePosition] = useState({ x: 0, y: 0 });
   const [mouseHoverStar, setMouseHoverStar] = useState<number | null>(null);
-  const animationFrameRef = useRef<number | null>(null);
   
-  // Initialize dimensions and stars
   useEffect(() => {
     const updateDimensions = () => {
       if (containerRef.current) {
@@ -48,8 +45,6 @@ const ImmersiveMenuBackground: React.FC<ImmersiveMenuBackgroundProps> = ({
         }));
         
         setStars(newStars);
-        // Initialize smooth mouse position to center of screen
-        setSmoothMousePosition({ x: width / 2, y: height / 2 });
       }
     };
     
@@ -61,42 +56,14 @@ const ImmersiveMenuBackground: React.FC<ImmersiveMenuBackgroundProps> = ({
     };
   }, []);
   
-  // Smooth mouse position tracking
-  useEffect(() => {
-    const smoothFactor = 0.1; // Lower value means smoother but slower tracking
-    
-    const smoothMouseMove = () => {
-      // Calculate difference between actual mouse position and smooth position
-      const dx = mousePosition.x - smoothMousePosition.x;
-      const dy = mousePosition.y - smoothMousePosition.y;
-      
-      // Apply easing
-      setSmoothMousePosition(prev => ({
-        x: prev.x + dx * smoothFactor,
-        y: prev.y + dy * smoothFactor
-      }));
-      
-      animationFrameRef.current = requestAnimationFrame(smoothMouseMove);
-    };
-    
-    animationFrameRef.current = requestAnimationFrame(smoothMouseMove);
-    
-    return () => {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
-    };
-  }, [mousePosition]);
-  
-  // Check for stars near smooth mouse position - less frequently
+  // Check for stars near mouse position
   useEffect(() => {
     if (!dimensions.width) return;
     
-    // Use a timer to reduce frequency of updates
-    const updateTimer = setTimeout(() => {
+    const checkHover = () => {
       const threshold = 80;
-      const mouseX = smoothMousePosition.x;
-      const mouseY = smoothMousePosition.y;
+      const mouseX = mousePosition.x;
+      const mouseY = mousePosition.y;
       
       setStars(prevStars => 
         prevStars.map(star => {
@@ -111,10 +78,10 @@ const ImmersiveMenuBackground: React.FC<ImmersiveMenuBackgroundProps> = ({
           };
         })
       );
-    }, 100); // Only update every 100ms
+    };
     
-    return () => clearTimeout(updateTimer);
-  }, [smoothMousePosition, dimensions]);
+    checkHover();
+  }, [mousePosition, dimensions]);
   
   return (
     <div 
@@ -129,7 +96,7 @@ const ImmersiveMenuBackground: React.FC<ImmersiveMenuBackgroundProps> = ({
         className="absolute inset-0 bg-[linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px)]"
         style={{ 
           backgroundSize: '40px 40px',
-          transform: `translate(${-smoothMousePosition.x / 30}px, ${-smoothMousePosition.y / 30}px)`
+          transform: `translate(${-mousePosition.x / 20}px, ${-mousePosition.y / 20}px)`
         }}
       ></div>
       
@@ -148,7 +115,7 @@ const ImmersiveMenuBackground: React.FC<ImmersiveMenuBackgroundProps> = ({
             repeatType: "reverse" 
           }}
           style={{
-            transform: `perspective(1000px) rotateY(${(smoothMousePosition.x - dimensions.width / 2) / 100}deg) rotateX(${-(smoothMousePosition.y - dimensions.height / 2) / 100}deg)`,
+            transform: `perspective(1000px) rotateY(${(mousePosition.x - dimensions.width / 2) / 50}deg) rotateX(${-(mousePosition.y - dimensions.height / 2) / 50}deg)`,
           }}
           className="w-48 h-36 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-md flex items-center justify-center shadow-xl"
         >
@@ -212,7 +179,7 @@ const ImmersiveMenuBackground: React.FC<ImmersiveMenuBackgroundProps> = ({
         />
       ))}
       
-      {/* Tiny Cars - With reduced movement speed */}
+      {/* Tiny Cars */}
       {Array.from({ length: 6 }).map((_, index) => (
         <motion.div
           key={`car-${index}`}
@@ -235,7 +202,7 @@ const ImmersiveMenuBackground: React.FC<ImmersiveMenuBackgroundProps> = ({
             rotate: [0, 90, 180, 270, 360],
           }}
           transition={{
-            duration: 20 + index * 2, // Slower movement
+            duration: 10 + index * 2,
             repeat: Infinity,
             repeatType: "loop",
           }}
@@ -245,7 +212,7 @@ const ImmersiveMenuBackground: React.FC<ImmersiveMenuBackgroundProps> = ({
         </motion.div>
       ))}
       
-      {/* Birds with smoother motion */}
+      {/* Birds */}
       {Array.from({ length: 4 }).map((_, index) => (
         <motion.div
           key={`bird-${index}`}
@@ -255,13 +222,13 @@ const ImmersiveMenuBackground: React.FC<ImmersiveMenuBackgroundProps> = ({
             top: Math.random() * dimensions.height * 0.6
           }}
           animate={{
-            left: smoothMousePosition.x + Math.sin(Date.now() / 2000 + index) * 150,
-            top: smoothMousePosition.y + Math.cos(Date.now() / 2000 + index) * 150,
+            left: mousePosition.x + Math.sin(Date.now() / 1000 + index) * 150,
+            top: mousePosition.y + Math.cos(Date.now() / 1000 + index) * 150,
             rotate: [0, 10, -10, 0],
           }}
           transition={{
-            left: { duration: 4 }, // Slower movement
-            top: { duration: 4 }, // Slower movement
+            left: { duration: 2 },
+            top: { duration: 2 },
             rotate: { duration: 0.5, repeat: Infinity }
           }}
         >
